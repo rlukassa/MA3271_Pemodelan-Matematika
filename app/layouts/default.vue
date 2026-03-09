@@ -51,13 +51,13 @@ const features = [
       @click="sidebarOpen = false"
     />
 
-\    <aside
+    <aside
       :class="[
         'fixed lg:sticky top-0 left-0 z-40 h-screen w-64 bg-[#0a0b10] border-r border-[#1a1d2b] flex flex-col transition-transform duration-300',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       ]"
     >
-\      <div class="px-4 py-4 border-b border-[#1a1d2b]">
+      <div class="px-4 py-4 border-b border-[#1a1d2b]">
         <NuxtLink to="/" class="flex items-center gap-2" @click="sidebarOpen = false">
           <span class="text-teal-400 text-2xl">⬡</span>
           <div>
