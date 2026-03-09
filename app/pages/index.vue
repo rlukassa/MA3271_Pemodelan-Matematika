@@ -11,7 +11,8 @@ useHead({
   ]
 })
 
-const a = ref(2.0)
+// config doang
+const a = ref(2.0)  
 const m = ref(0.45)
 const Dp = 0.1
 const Dw = 2.0
@@ -29,24 +30,25 @@ const simTime = ref(0)
 const fps = ref(0)
 const iterationCount = ref(0)
 
-// Periodic auto-capture every N simulation years
+// a = curah hujan, m = kematian tanaman, Dp = difusi biomassa, Dw = difusi air
+// N = ukuran grid, dx = jarak antar sel, dt = langkah waktu
+// totalCells = N*N, stepsPerFrame = berapa langkah simulasi tiap frame render (untuk mempercepat simulasi)
+// canvasRef = ref untuk akses elemen canvas utama, overlayRef untuk elemen canvas overlay (garis kontur), legendRef untuk elemen canvas legenda warna
+
 const autoCaptureYearInterval = ref(4)
 let nextPeriodicCapture = 4
 
-// Visualization modes
-const showContours = ref(true)
-const showCrossSection = ref(true)
+const showContours = ref(true) // opsi untuk menampilkan garis kontur di atas visualisasi utama
+const showCrossSection = ref(true) // data untuk potongan melintang (cross-section) di tengah grid, untuk melihat profil B dan R secara vertikal
 
-// Bifurcation live trail
 const bifTrail = shallowRef([])
-const maxTrail = 80
+const maxTrail = 80 // berapa banyak titik terakhir yang ditampilkan pada bifurcation trail (jejak titik hidup pada diagram bifurkasi)
 
-// Cross-section data
 const crossSectionData = shallowRef([])
 
 const prevIdx = new Int32Array(N)
 const nextIdx = new Int32Array(N)
-for (let i = 0; i < N; i++) {
+for (let i = 0; i < N; i++) { // untuk menghindari perhitungan modulus yang mahal saat mengakses tetangga sel (untuk difusi), kita buat array indeks sebelumnya dan berikutnya yang sudah dihitung
   prevIdx[i] = (i - 1 + N) % N
   nextIdx[i] = (i + 1) % N
 }
@@ -59,8 +61,11 @@ let Wn = new Float32Array(totalCells)
 let imgData = null
 
 const LUT = new Uint8Array(1024)
-;(function buildLUT() {
-  const stops = [
+// LUT (Look-Up Table) untuk mapping nilai biomassa ke warna RGB. 
+// Kita buat sekali di awal dengan interpolasi antara beberapa warna pada rentang nilai B, 
+// sehingga saat render kita cukup melakukan indexing cepat tanpa perhitungan warna yang kompleks.
+;(function buildLUT() { 
+  const stops = [ 
     [0.00,  45,  26,  15],
     [0.05,  90,  60,  30],
     [0.15, 160, 120,  50],
@@ -70,13 +75,15 @@ const LUT = new Uint8Array(1024)
     [0.70,  30, 160,  80],
     [0.85,  20, 130,  96],
     [1.00,  10, 180, 140],
-  ]
+  ] 
+  // Setiap stop adalah [nilai B normalisasi, R, G, B]. 
+  // Kita akan interpolasi warna antara stop yang berdekatan untuk setiap nilai B dari 0 sampai 1 (atau lebih, tapi kita fokus di bawah 1 untuk visualisasi).
   for (let i = 0; i < 256; i++) {
     const t = i / 255
     let s0 = stops[0], s1 = stops[stops.length - 1]
     for (let j = 0; j < stops.length - 1; j++) {
       if (t >= stops[j][0] && t <= stops[j + 1][0]) { s0 = stops[j]; s1 = stops[j + 1]; break }
-    }
+    } 
     const f = s1[0] - s0[0] > 0 ? (t - s0[0]) / (s1[0] - s0[0]) : 0
     const b = i << 2
     LUT[b]     = Math.round(s0[1] + (s1[1] - s0[1]) * f)
@@ -93,11 +100,11 @@ const stats = shallowRef({ Bavg: 0, Bmax: 0, Bvar: 0, Wavg: 0 })
 const chartData = shallowRef({ biomass: [], water: [] })
 
 const ecosystemStatus = computed(() => {
-  const { Bavg, Bvar } = stats.value
-  if (Bavg < 0.05)
+  const { Bavg, Bvar } = stats.value // status ekosistem ditentukan berdasarkan rata-rata biomassa dan koefisien variasi (cv = akar varians dibagi rata-rata) untuk mengidentifikasi pola spasial
+  if (Bavg < 0.05) 
     return { label: 'Gurun (Kolaps)', color: 'text-red-400', bg: 'bg-red-500/20 border-red-500/40', pulse: 'bg-red-500',
       desc: 'Ekosistem telah melewati titik kritis (tipping point). Vegetasi tidak dapat bertahan pada curah hujan saat ini.' }
-  const cv = Math.sqrt(Math.max(0, Bvar)) / Bavg
+  const cv = Math.sqrt(Math.max(0, Bvar)) / Bavg // cv = akar varians dibagi rata-rata
   if (cv < 0.15 && Bavg > 0.2)
     return { label: 'Hutan Penuh (Homogen)', color: 'text-green-400', bg: 'bg-green-500/20 border-green-500/40', pulse: 'bg-green-500',
       desc: 'Tutupan vegetasi seragam dan stabil. Curah hujan cukup untuk mendukung kanopi penuh tanpa pola spasial.' }
@@ -108,7 +115,11 @@ const ecosystemStatus = computed(() => {
     desc: 'Sistem sedang bertransisi antar keadaan stabil. Amati dinamika pembentukan pola.' }
 })
 
-function initSim() {
+// konstanta visualisasi nya bisa disesuaikan dengan eksperimen
+// jadi kalo 0.05 itu artinya kalo rata-rata biomassa di bawah 0.05 dianggap sudah kolaps, terus 0.15 itu threshold untuk cv (koefisien variasi) untuk membedakan antara pola homogen dan berpola, dan 0.2 itu threshold tambahan untuk memastikan bahwa rata-rata biomassa cukup tinggi untuk dianggap sebagai hutan penuh, bukan hanya pola dengan biomassa rendah.
+// logika klasifikasi ini sederhana tapi cukup efektif untuk memberikan gambaran umum tentang status ekosistem berdasarkan statistik biomassa yang dihitung dari simulasi. Tentu saja, dalam analisis yang lebih mendalam, kita bisa menggunakan metode lain seperti analisis spektral untuk mengidentifikasi pola spasial secara lebih akurat, tapi ini sudah cukup untuk tujuan visualisasi dan edukasi di sini.
+
+function initSim() { // inisialisasi kondisi awal simulasi dengan nilai biomassa dan air acak di setiap sel, serta reset variabel terkait seperti waktu simulasi, iterasi, statistik, dan data historis untuk grafik
   const aVal = a.value
   for (let i = 0; i < totalCells; i++) {
     B[i] = 0.1 + Math.random() * 0.15
@@ -124,7 +135,7 @@ function initSim() {
   chartData.value = { biomass: [], water: [] }
 }
 
-function step() {
+function step() { // iterasinya per langkah waktu, menghitung nilai biomassa dan air untuk setiap sel berdasarkan persamaan diferensial yang diberikan, termasuk efek pertumbuhan, kematian, interaksi antara biomassa dan air, serta difusi. Setelah menghitung nilai baru untuk semua sel, kita swap array untuk mempersiapkan iterasi berikutnya.
   const aVal = a.value, mVal = m.value
   const rDp = dt * Dp / (dx * dx)
   const rDw = dt * Dw / (dx * dx)
@@ -165,7 +176,7 @@ function computeStats() {
   stats.value = { Bavg: avgB, Bmax: maxB, Bvar: sumB2 / totalCells - avgB * avgB, Wavg: sumW / totalCells }
   histB.push(avgB); histW.push(sumW / totalCells)
   if (histB.length > maxHistory) { histB.shift(); histW.shift() }
-}
+} // fungsi untuk menghitung statistik biomassa dan air dari seluruh grid, termasuk rata-rata, varians, dan nilai maksimum biomassa. Statistik ini digunakan untuk menentukan status ekosistem dan juga untuk membangun grafik temporal dari rata-rata biomassa dan air seiring waktu.
 
 let displayMax = 0.5
 
@@ -191,21 +202,18 @@ function draw() {
   }
   ctx.putImageData(imgData, 0, 0)
 
-  // Draw contour lines overlay
   if (showContours.value) {
     drawContours(ctx, scale)
   }
 }
 
 function drawContours(ctx, scale) {
-  // Contour at B thresholds to show structure clearly
   const thresholds = [0.15, 0.5, 1.5, 3.0]
   ctx.lineWidth = 0.8
   for (const thr of thresholds) {
     const alpha = thr < 1 ? 0.25 : 0.4
     ctx.strokeStyle = thr < 1 ? `rgba(255,120,80,${alpha})` : `rgba(255,255,255,${alpha})`
     ctx.beginPath()
-    // Simple marching squares for each threshold
     for (let y = 0; y < N - 1; y += 2) {
       const row = y * N
       for (let x = 0; x < N - 1; x += 2) {
@@ -215,7 +223,6 @@ function drawContours(ctx, scale) {
         const v11 = B[row + N + x + 1] >= thr ? 1 : 0
         const caseId = v00 | (v10 << 1) | (v01 << 2) | (v11 << 3)
         if (caseId === 0 || caseId === 15) continue
-        // Simplified: draw midpoint edges
         const mx = x + 1, my = y + 1
         if (caseId === 1 || caseId === 14) { ctx.moveTo(x, my); ctx.lineTo(mx, y) }
         else if (caseId === 2 || caseId === 13) { ctx.moveTo(mx, y); ctx.lineTo(x + 2, my) }
@@ -230,7 +237,6 @@ function drawContours(ctx, scale) {
   }
 }
 
-// Cross-section: extract central row
 function updateCrossSection() {
   if (!showCrossSection.value) return
   const midY = N >> 1
@@ -240,7 +246,7 @@ function updateCrossSection() {
   crossSectionData.value = data
 }
 
-function drawLegend() {
+function drawLegend() { // fungsi untuk menggambar legenda warna pada canvas terpisah, menggunakan LUT yang sama dengan yang digunakan untuk render utama, sehingga legenda mencerminkan mapping warna yang akurat untuk nilai biomassa yang ditampilkan
   const c = legendRef.value
   if (!c) return
   const ctx = c.getContext('2d')
@@ -252,8 +258,7 @@ function drawLegend() {
   }
 }
 
-// === TEMPORAL CHART ===
-const chartW = 500, chartH = 120
+const chartW = 500, chartH = 120 // ukuran canvas untuk grafik temporal rata-rata biomassa dan air seiring waktu
 
 function buildPath(data) {
   if (!data || data.length < 2) return ''
@@ -270,18 +275,16 @@ function buildPath(data) {
 const biomassPath = computed(() => buildPath(chartData.value.biomass))
 const waterPath   = computed(() => buildPath(chartData.value.water))
 
-// === SNAPSHOT GALLERY ===
 const snapshots = ref([])
 const maxSnapshots = 24
 const showModal = ref(false)
 const modalIdx = ref(0)
 const autoCaptureFeedback = ref(false)
 
-function captureSnapshot(isAuto = false) {
+function captureSnapshot(isAuto = false) { // tangkap snapshot
   const canvas = canvasRef.value
   if (!canvas) return
 
-  // Create annotated version for saving
   const annotCanvas = document.createElement('canvas')
   const size = N
   const bannerH = 60
@@ -289,10 +292,8 @@ function captureSnapshot(isAuto = false) {
   annotCanvas.height = size + bannerH
   const actx = annotCanvas.getContext('2d')
 
-  // Copy main canvas
   actx.drawImage(canvas, 0, 0)
 
-  // Draw info banner at bottom
   actx.fillStyle = 'rgba(7,8,12,0.92)'
   actx.fillRect(0, size, size, bannerH)
   actx.fillStyle = '#0f1117'
@@ -306,7 +307,6 @@ function captureSnapshot(isAuto = false) {
   actx.fillStyle = '#c0c8d8'
   actx.fillText(`a=${a.value.toFixed(2)}  m=${m.value.toFixed(2)}  B_avg=${stats.value.Bavg.toFixed(3)}  W_avg=${stats.value.Wavg.toFixed(3)}`, 10, size + 38)
 
-  // Status label
   const statusLabel = ecosystemStatus.value.label
   const statusColors = { 'Gurun (Kolaps)': '#f87171', 'Hutan Penuh (Homogen)': '#34d399', 'Berpola (Pola Turing)': '#22d3ee', 'Transisi': '#fbbf24' }
   actx.font = 'bold 14px sans-serif'
@@ -315,14 +315,12 @@ function captureSnapshot(isAuto = false) {
   actx.fillText(statusLabel, size - 10, size + 20)
   actx.textAlign = 'left'
 
-  // Iteration
   actx.font = '11px monospace'
   actx.fillStyle = '#555d70'
   actx.textAlign = 'right'
   actx.fillText(`iter #${iterationCount.value.toLocaleString()}`, size - 10, size + 38)
   actx.textAlign = 'left'
 
-  // Horizontal line at y=N/2 to indicate cross-section
   actx.strokeStyle = 'rgba(251,191,36,0.4)'
   actx.lineWidth = 1
   actx.setLineDash([4, 4])
@@ -351,7 +349,6 @@ function captureSnapshot(isAuto = false) {
   }
 }
 
-// === AUTO-CAPTURE ON STATE TRANSITIONS ===
 let prevStatus = ''
 let autoCaptureDebounce = 0
 
@@ -367,7 +364,6 @@ function checkAutoCapture() {
   prevStatus = currentStatus
 }
 
-// Periodic auto-capture at fixed year intervals
 function checkPeriodicCapture() {
   if (simTime.value >= nextPeriodicCapture) {
     captureSnapshot(true)
@@ -395,8 +391,7 @@ function clearGallery() {
   snapshots.value = []
 }
 
-// === BIFURCATION / TIPPING POINT ===
-const bifW = 400, bifH = 200
+const bifW = 400, bifH = 200 // diagram bifurkasi: sumbu x untuk parameter a (curah hujan), sumbu y untuk rata-rata biomassa Bavg, dengan batas atas sekitar 5 untuk fokus pada rentang yang relevan. Kita akan menggambar cabang bifurkasi, titik hidup saat ini, dan jejak titik hidup seiring waktu pada diagram ini.
 
 const bifurcationData = computed(() => {
   const mVal = m.value
@@ -448,10 +443,8 @@ const bifDesertPath = computed(() => {
 const bifCurrentX = computed(() => bifToSvg(a.value, 0).x)
 const bifTippingX = computed(() => bifToSvg(bifurcationData.value.aCrit, 0).x)
 
-// Live point: actual (a, B_avg) on bifurcation
 const bifLivePoint = computed(() => bifToSvg(a.value, stats.value.Bavg))
 
-// Trail path for bifurcation
 const bifTrailPath = computed(() => {
   const t = bifTrail.value
   if (t.length < 2) return ''
@@ -461,10 +454,9 @@ const bifTrailPath = computed(() => {
   }).join('L')
 })
 
-// === BUSSE BALLOON ===
-const busseW = 400, busseH = 200
+const busseW = 400, busseH = 200 // diagram busse balloon: sumbu x untuk parameter a (curah hujan), sumbu y untuk nilai k, dengan batas atas sekitar 3 untuk fokus pada rentang yang relevan. Kita akan menggambar batas area stabil, titik hidup saat ini, dan jejak titik hidup seiring waktu pada diagram ini. 
 
-const busseBalloonData = computed(() => {
+const busseBalloonData = computed(() => { 
   const mVal = m.value
   const aCrit = 2 * mVal
   const result = []
@@ -532,7 +524,6 @@ const busseMaxPath = computed(() => {
 
 const busseCurrentX = computed(() => busseToSvg(a.value, 0).x)
 
-// Cross-section SVG path
 const crossSectionPath = computed(() => {
   const data = crossSectionData.value
   if (!data || data.length < 2) return ''
@@ -541,7 +532,6 @@ const crossSectionPath = computed(() => {
   for (let i = 0; i < data.length; i++) if (data[i] > mx) mx = data[i]
   const sx = w / (data.length - 1)
   const pts = []
-  // Downsample for performance
   const step = Math.max(1, Math.floor(data.length / 250))
   for (let i = 0; i < data.length; i += step) {
     pts.push(`${(i * sx).toFixed(1)},${(h - (data[i] / mx) * (h - 6) - 3).toFixed(1)}`)
@@ -564,7 +554,6 @@ const crossSectionFillPath = computed(() => {
   return 'M' + pts.join('L') + 'Z'
 })
 
-// === PHASE PORTRAIT / NULLCLINES ===
 const phaseW = 400, phaseH = 200
 
 const nullclineData = computed(() => {
@@ -616,10 +605,11 @@ const wnullPath = computed(() => {
   }).join('L')
 })
 
-// === MAIN LOOP ===
 let lastTime = performance.now(), frameAcc = 0, frameNum = 0
 
 function mainLoop() {
+  // JADI DI SINI KITA MENGATUR LOOP UTAMA SIMULASI, DI MANA KITA MELAKUKAN BEBERAPA LANGKAH:
+  // 1. 
   const now = performance.now()
   frameAcc++
   if (now - lastTime > 600) {
@@ -664,7 +654,6 @@ onMounted(() => {
 <template>
   <div class="min-h-screen bg-[#07080c] text-[#e8edf5] font-body">
 
-    <!-- ===== MODAL OVERLAY ===== -->
     <Teleport to="body">
       <div v-if="showModal && snapshots[modalIdx]" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6" @click.self="showModal = false">
         <div class="bg-[#0f1117] rounded-2xl border border-[#1a1d2b] p-3 sm:p-5 max-w-2xl w-full animate-modal">
@@ -687,15 +676,12 @@ onMounted(() => {
       </div>
     </Teleport>
 
-    <!-- ===== HEADER ===== -->
-    <header class="border-b border-[#1a1d2b] bg-[#07080c]/90 backdrop-blur-md sticky top-0 z-10">
+    <!-- ===== PAGE HEADER ===== -->
+    <div class="border-b border-[#1a1d2b] bg-[#07080c]/90 backdrop-blur-md sticky top-0 z-10 lg:z-10">
       <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3">
         <div>
-          <h1 class="text-lg sm:text-xl lg:text-2xl font-heading font-bold tracking-tight flex items-center gap-2 sm:gap-3">
-            <span class="text-teal-400 text-xl sm:text-2xl lg:text-3xl">&#x2B21;</span>
-            <span>Klausmeier Vegetation Model</span>
-          </h1>
-          <p class="text-[9px] sm:text-xs text-[#555d70] mt-0.5 font-body">MA3271 Pemodelan Matematika &middot; Kelompok 4 &middot; Dinamika Vegetasi di Lahan Kering</p>
+          <h1 class="text-lg sm:text-xl font-heading font-bold tracking-tight">Simulasi 2D Real-Time</h1>
+          <p class="text-[9px] sm:text-xs text-[#555d70] mt-0.5 font-body">Simulasi spasial Model Klausmeier dengan Euler Eksplisit · Grid {{ N }}×{{ N }} · Pola Turing 2D</p>
         </div>
         <div :class="['px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border text-[10px] sm:text-sm font-medium flex items-center gap-2 shrink-0 font-body', ecosystemStatus.bg]">
           <span class="relative flex h-2 w-2 sm:h-2.5 sm:w-2.5">
@@ -705,19 +691,27 @@ onMounted(() => {
           <span :class="ecosystemStatus.color">{{ ecosystemStatus.label }}</span>
         </div>
       </div>
-    </header>
+    </div>
 
     <main class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
 
-      <!-- Status Banner -->
+      <div class="mb-4 sm:mb-6 card">
+        <h3 class="text-xs font-body font-semibold text-teal-400 mb-1.5">Tentang Fitur Ini</h3>
+        <p class="text-[11px] sm:text-xs text-[#8892a6] font-body leading-relaxed">
+          Simulasi 2D menjalankan Model Klausmeier pada grid {{ N }}×{{ N }} piksel menggunakan metode Euler Eksplisit.
+          Coupling difusi (D<sub>p</sub>={{ Dp }}, D<sub>w</sub>={{ Dw }}) diterapkan secara numerik untuk menghasilkan
+          pola Turing — pola spasial terorganisir mandiri berupa labirin, titik, atau celah yang muncul
+          akibat instabilitas difusi. Ubah parameter <strong class="text-teal-400">a</strong> (curah hujan) dan
+          <strong class="text-amber-400">m</strong> (kematian) untuk mengamati transisi ekosistem.
+        </p>
+      </div>
+
       <div :class="['mb-4 sm:mb-6 px-3 sm:px-4 py-2 sm:py-3 rounded-xl border text-[11px] sm:text-sm transition-colors duration-500 font-body', ecosystemStatus.bg]">
         <p :class="ecosystemStatus.color">{{ ecosystemStatus.desc }}</p>
       </div>
 
-      <!-- ===== MAIN GRID ===== -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
 
-        <!-- Canvas Area -->
         <div class="lg:col-span-2">
           <div class="card">
             <div class="flex items-center justify-between mb-3">
@@ -728,7 +722,6 @@ onMounted(() => {
               </div>
             </div>
 
-            <!-- Time banner -->
             <div class="flex items-center gap-3 mb-3 px-3 py-2 rounded-lg bg-[#0a0b10] border border-[#13151e]">
               <div class="flex-1">
                 <p class="text-[9px] sm:text-[10px] text-[#3a3f50] font-body uppercase tracking-wider">Waktu Simulasi</p>
@@ -752,7 +745,6 @@ onMounted(() => {
             </div>
             <p class="text-[9px] sm:text-[11px] text-[#3a3f50] mt-2 font-body">Biomassa B (kg m&#x207B;&sup2;) &middot; Batas Periodik &middot; dx = {{ dx }} m</p>
 
-            <!-- Visualization toggles -->
             <div class="flex items-center gap-3 mt-2">
               <label class="flex items-center gap-1.5 cursor-pointer">
                 <input type="checkbox" v-model="showContours" class="accent-teal-400 w-3.5 h-3.5" />
@@ -764,7 +756,6 @@ onMounted(() => {
               </label>
             </div>
 
-            <!-- Cross-section profile -->
             <div v-if="showCrossSection && crossSectionPath" class="mt-3">
               <p class="text-[8px] sm:text-[9px] text-[#3a3f50] font-body mb-1 uppercase tracking-wider">Profil Irisan Tengah (y = {{ N >> 1 }})</p>
               <svg viewBox="0 0 500 80" class="w-full h-14 sm:h-16 lg:h-20 rounded-lg border border-[#13151e] bg-[#0a0b10]" preserveAspectRatio="none">
@@ -785,10 +776,8 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Right Panel -->
         <div class="space-y-4 sm:space-y-5">
 
-          <!-- Controls -->
           <div class="card">
             <h2 class="section-title mb-3 sm:mb-4">Parameter Model</h2>
             <div class="space-y-3 sm:space-y-4">
@@ -833,7 +822,6 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Metrics -->
           <div class="card">
             <h2 class="section-title mb-3">Metrik Waktu Nyata</h2>
             <div class="grid grid-cols-2 gap-2 sm:gap-3">
@@ -856,12 +844,11 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Equations (ODE — no nabla) -->
           <div class="card">
             <h2 class="section-title mb-3">Persamaan Model</h2>
             <div class="text-[11px] sm:text-sm text-[#8892a6] space-y-2 font-data leading-relaxed eq-box">
-              <p>dB/dt = &minus;m &middot; B + W &middot; B&sup2;</p>
-              <p>dW/dt = a &minus; W &minus; W &middot; B&sup2;</p>
+              <p>dB/dt = &minus;m &middot; B + R &middot; B&sup2;</p>
+              <p>dR/dt = a &minus; R &minus; R &middot; B&sup2;</p>
             </div>
             <div class="mt-2.5 text-[8px] sm:text-[10px] text-[#3a3f50] font-body space-y-0.5">
               <p>D<sub>p</sub> = {{ Dp }} &middot; D<sub>w</sub> = {{ Dw }} m&sup2; thn&#x207B;&sup1;</p>
@@ -869,7 +856,6 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- Numerical Configuration -->
           <div class="card">
             <h2 class="section-title mb-3">Konfigurasi Numerik</h2>
             <div class="grid grid-cols-2 gap-2">
@@ -885,7 +871,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- ===== SNAPSHOT GALLERY ===== -->
       <div v-if="snapshots.length > 0" class="mt-4 sm:mt-6 card">
         <div class="flex items-center justify-between mb-3">
           <h2 class="section-title">Galeri Tangkapan &middot; {{ snapshots.length }}/{{ maxSnapshots }}</h2>
@@ -919,7 +904,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- ===== TEMPORAL DYNAMICS ===== -->
       <div class="mt-4 sm:mt-6 card">
         <h2 class="section-title mb-3">Dinamika Temporal</h2>
         <svg :viewBox="`0 0 ${chartW} ${chartH}`" class="w-full h-20 sm:h-28 lg:h-32" preserveAspectRatio="none">
@@ -933,10 +917,8 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- ===== ANALYTICAL DIAGRAMS ===== -->
       <div class="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
 
-        <!-- Tipping Point / Bifurcation -->
         <div class="card">
           <h2 class="section-title mb-3">Diagram Bifurkasi <span class="text-red-400/60">(Tipping Point)</span></h2>
           <svg :viewBox="`0 0 ${bifW} ${bifH + 30}`" class="w-full" preserveAspectRatio="xMidYMid meet">
@@ -953,10 +935,8 @@ onMounted(() => {
 
             <line :x1="bifCurrentX" :y1="0" :x2="bifCurrentX" :y2="bifH" stroke="#5eead4" stroke-width="1.5" opacity="0.7" class="anim-cursor" />
 
-            <!-- Live B_avg trail -->
             <path v-if="bifTrailPath" :d="bifTrailPath" fill="none" stroke="#f472b6" stroke-width="1.5" opacity="0.6" stroke-linejoin="round" />
 
-            <!-- Live tracking point (actual B_avg) -->
             <circle :cx="bifLivePoint.x" :cy="bifLivePoint.y" r="5" fill="#f472b6" stroke="#07080c" stroke-width="1.5" class="anim-pulse-dot" />
             <text :x="bifLivePoint.x + 9" :y="bifLivePoint.y + 4" fill="#f472b6" font-size="8" class="font-svg-data">B_avg</text>
 
@@ -977,7 +957,6 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Busse Balloon -->
         <div class="card">
           <h2 class="section-title mb-3">Busse Balloon <span class="text-teal-400/60">(Stabilitas Pola)</span></h2>
           <svg :viewBox="`0 0 ${busseW} ${busseH + 30}`" class="w-full" preserveAspectRatio="xMidYMid meet">
@@ -1000,7 +979,6 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Phase Portrait -->
         <div class="card md:col-span-2 xl:col-span-1">
           <h2 class="section-title mb-3">Potret Fase <span class="text-sky-400/60">(Nullclines)</span></h2>
           <svg :viewBox="`0 0 ${phaseW} ${phaseH + 30}`" class="w-full" preserveAspectRatio="xMidYMid meet">
@@ -1036,12 +1014,6 @@ onMounted(() => {
       </div>
     </main>
 
-    <footer class="border-t border-[#1a1d2b] mt-6 sm:mt-8">
-      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 text-[9px] sm:text-xs text-[#3a3f50] flex flex-col sm:flex-row justify-between gap-1">
-        <span class="font-body">MA3271 Pemodelan Matematika &middot; Model Klausmeier &middot; Euler Eksplisit</span>
-        <span class="font-data">Grid {{ N }}&times;{{ N }} &middot; {{ totalCells.toLocaleString() }} sel &middot; dt = {{ dt }} thn</span>
-      </div>
-    </footer>
   </div>
 </template>
 
