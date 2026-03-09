@@ -100,7 +100,7 @@ const features = [
       </div>
     </aside>
 
-\    <div class="flex-1 min-w-0 flex flex-col">
+    <div class="flex-1 min-w-0 flex flex-col">
       <header class="lg:hidden sticky top-0 z-20 bg-[#07080c]/90 backdrop-blur-md border-b border-[#1a1d2b]">
         <div class="px-4 py-3 flex items-center gap-3">
           <button
