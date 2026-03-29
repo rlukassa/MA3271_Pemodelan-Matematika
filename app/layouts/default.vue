@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const sidebarOpen = ref(false)
 const route = useRoute()
@@ -41,7 +41,7 @@ const features = [
     icon: 'S2D',
     label: 'Simulasi 2D',
     desc: 'Simulasi spasial real-time',
-    status: 'existing',
+    status: 'stable',
     version: 1
   },
   {
@@ -49,7 +49,7 @@ const features = [
     icon: 'BIF',
     label: 'Diagram Bifurkasi',
     desc: 'a vs Be dan Re',
-    status: 'new',
+    status: 'stable',
     version: 1
   },
   {
@@ -57,7 +57,7 @@ const features = [
     icon: 'EQ',
     label: 'Analisis Equilibrium',
     desc: 'Jacobi & Eigenvalue',
-    status: 'new',
+    status: 'stable',
     version: 1
   },
   {
@@ -65,18 +65,61 @@ const features = [
     icon: 'FAS',
     label: 'Potret Fase',
     desc: 'Nullclines & Trajectory',
-    status: 'new',
+    status: 'stable',
     version: 1
   },
   {
     path: '/runge-kutta',
     icon: 'RK4',
-    label: 'Runge-Kutta (RK4)',
-    desc: 't vs B(t) dan R(t)',
+    label: 'Runge-Kutta (V1)',
+    desc: 'Baseline numerik ODE',
+    status: 'stable',
+    version: 1
+  },
+  {
+    path: '/runge-kutta-v2',
+    icon: 'RK2',
+    label: 'Runge-Kutta (V2)',
+    desc: 'Metodologi + validasi',
+    status: 'new',
+    version: 2
+  },
+  {
+    path: '/turing-linear-v2',
+    icon: 'TL2',
+    label: 'Turing Linear (V2)',
+    desc: 'Dispersi λ(k) & syarat',
+    status: 'new',
+    version: 2
+  },
+  {
+    path: '/sweep-v2',
+    icon: 'SW2',
+    label: 'Parameter Sweep (V2)',
+    desc: 'Atlas pola kuantitatif',
+    status: 'new',
+    version: 2
+  },
+  {
+    path: '/histeresis-v2',
+    icon: 'HY2',
+    label: 'Histeresis (V2)',
+    desc: 'Forward-backward a',
+    status: 'new',
+    version: 2
+  },
+  {
+    path: '/laporan-v2',
+    icon: 'LP2',
+    label: 'Paket Laporan (V2)',
+    desc: 'Checklist naskah final',
     status: 'new',
     version: 2
   },
 ]
+
+const v1Features = computed(() => features.filter(f => f.version === 1))
+const v2Features = computed(() => features.filter(f => f.version === 2))
 </script>
 
 <template>
@@ -105,24 +148,53 @@ const features = [
         </NuxtLink>
       </div>
 
-      <nav class="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
-        <p class="px-3 py-2 text-[8px] text-[#6f8a7a] uppercase tracking-[0.15em] font-body">Fitur Analisis</p>
+      <nav class="flex-1 py-3 px-2 space-y-3 overflow-y-auto">
+        <div>
+          <p class="px-3 py-2 text-[8px] text-[#74a0e8] uppercase tracking-[0.15em] font-body">Versi 1 (Baseline)</p>
+          <NuxtLink
+            v-for="f in v1Features"
+            :key="f.path"
+            :to="f.path"
+            :class="[
+              'neo-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative',
+              route.path === f.path
+                ? 'bg-blue-500/10 border border-blue-500/30 text-blue-300'
+                : 'hover:bg-[#13231b] text-[#95a99d] hover:text-[#d5e3da] border border-blue-500/20'
+            ]"
+            @click="sidebarOpen = false"
+          >
+            <span class="text-[10px] w-10 text-center shrink-0 transition-colors font-data border border-blue-500/40 rounded px-1.5 py-1 text-blue-200 bg-blue-500/10">
+              {{ f.icon }}
+            </span>
+
+            <div class="min-w-0">
+              <p class="text-xs font-medium truncate">{{ f.label }}</p>
+              <p class="text-[9px] text-[#6f8a7a] truncate">{{ f.desc }}</p>
+            </div>
+
+            <span
+              class="absolute right-2 top-1.5 text-[6px] px-1 py-0.5 rounded font-data bg-blue-500/15 text-blue-300/80"
+            >V1</span>
+          </NuxtLink>
+        </div>
+
+        <div>
+          <p class="px-3 py-2 text-[8px] text-[#d3b654] uppercase tracking-[0.15em] font-body">Versi 2 (Pengembangan)</p>
         <NuxtLink
-  v-for="f in features"
+  v-for="f in v2Features"
   :key="f.path"
   :to="f.path"
   :class="[
     'neo-nav-item flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative',
     route.path === f.path 
-      ? (f.version === 2 ? 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-300' : 'bg-emerald-500/10 border border-emerald-500/25 text-emerald-300')
-      : 'hover:bg-[#13231b] text-[#95a99d] hover:text-[#d5e3da] border border-transparent',
-    f.version === 2 && route.path !== f.path ? 'border-emerald-500/20' : ''
+      ? 'bg-amber-500/10 border border-amber-500/35 text-amber-300'
+      : 'hover:bg-[#13231b] text-[#95a99d] hover:text-[#d5e3da] border border-amber-500/20'
   ]"
   @click="sidebarOpen = false"
 >
   <span :class="[
     'text-[10px] w-10 text-center shrink-0 transition-colors font-data border border-[#2f4b3c] rounded px-1.5 py-1',
-    f.version === 2 ? 'text-emerald-300 group-hover:text-emerald-200 bg-[#13231b]' : 'text-emerald-200 bg-[#112019]'
+    'text-amber-200 group-hover:text-amber-100 bg-amber-500/10 border-amber-500/45'
   ]">
     {{ f.icon }}
   </span>
@@ -133,13 +205,10 @@ const features = [
   </div>
 
   <span
-    v-if="f.status === 'new'"
-    :class="[
-      'absolute right-2 top-1.5 text-[6px] px-1 py-0.5 rounded font-data',
-      f.version === 2 ? 'bg-emerald-500/15 text-emerald-300/80' : 'bg-emerald-500/15 text-emerald-300/80'
-    ]"
-  >BARU</span>
+    class="absolute right-2 top-1.5 text-[6px] px-1 py-0.5 rounded font-data bg-amber-500/15 text-amber-200"
+  >V2</span>
 </NuxtLink>
+        </div>
       </nav>
 
       <div class="px-4 py-3 border-t border-[#1e3127] text-[8px] text-[#6f8a7a] font-body space-y-1 bg-[#0e1a14]">
