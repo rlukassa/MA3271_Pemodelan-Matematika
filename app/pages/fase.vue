@@ -20,7 +20,7 @@ function toSvg(bVal, wVal) {
 const nullclines = computed(() => {
   const mVal = m.value, aVal = a.value
   const bNull = [] // dB/dt = 0: W = m/B
-  const wNull = [] // dW/dt = 0: W = a/(1+B²)
+  const wNull = [] // dR/dt = 0: W = a/(1+R²)
 
   for (let bv = 0.02; bv <= bRange; bv += 0.02) {
     const wv = mVal / bv
@@ -142,7 +142,7 @@ onMounted(computeTrajectories)
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#07080c] text-[#e8edf5] font-body">
+  <div class="min-h-screen bg-transparent text-[#e8edf5] font-body">
     <div class="border-b border-[#1a1d2b] bg-[#07080c]/90 backdrop-blur-md sticky top-0 z-10 lg:z-10">
       <div class="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
         <h1 class="text-lg sm:text-xl font-heading font-bold tracking-tight">Potret Fase</h1>
@@ -189,7 +189,7 @@ onMounted(computeTrajectories)
         </div>
         <div class="flex items-center gap-4 mt-3">
           <button @click="computeTrajectories" class="px-4 py-2 bg-teal-600/80 hover:bg-teal-600 text-white text-xs rounded-xl font-semibold transition font-body">
-            ▶ Hitung Trajectory
+            Hitung Trajectory
           </button>
           <label class="flex items-center gap-1.5 cursor-pointer">
             <input type="checkbox" v-model="showTrajectories" class="accent-teal-400 w-3.5 h-3.5" />
@@ -328,16 +328,17 @@ onMounted(computeTrajectories)
 </template>
 
 <style scoped>
-.font-heading { font-family: 'Cormorant Garamond', Georgia, serif; }
-.font-body { font-family: 'Outfit', system-ui, sans-serif; }
+.font-heading { font-family: 'Space Grotesk', system-ui, sans-serif; }
+.font-body { font-family: 'Space Grotesk', system-ui, sans-serif; }
 .font-data { font-family: 'JetBrains Mono', monospace; }
 .font-svg-data { font-family: 'JetBrains Mono', monospace; }
 
-.card { background: #0f1117; border-radius: 1rem; border: 1px solid #1a1d2b; padding: 1.25rem; }
-.section-title { font-size: 0.65rem; font-weight: 600; color: #555d70; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Outfit', system-ui, sans-serif; }
+.card { background: #0d1713; border-radius: 0.8rem; border: 1px solid #1f3229; padding: 1.25rem; box-shadow: 4px 4px 0 0 #08110d; transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease; }
+.card:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #08110d; border-color: #2e4b3d; }
+.section-title { font-size: 0.65rem; font-weight: 700; color: #83a592; text-transform: uppercase; letter-spacing: 0.1em; font-family: 'Space Grotesk', system-ui, sans-serif; }
 
-.slider { width: 100%; height: 5px; border-radius: 999px; appearance: none; -webkit-appearance: none; cursor: pointer; background: #13151e; }
-.slider::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #07080c; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-.slider-teal::-webkit-slider-thumb { background: #5eead4; }
+.slider { width: 100%; height: 5px; border-radius: 999px; appearance: none; -webkit-appearance: none; cursor: pointer; background: #122019; }
+.slider::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #08110d; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.slider-teal::-webkit-slider-thumb { background: #32d583; }
 .slider-amber::-webkit-slider-thumb { background: #fbbf24; }
 </style>

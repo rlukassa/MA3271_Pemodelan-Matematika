@@ -137,7 +137,7 @@ function initSim() { // inisialisasi kondisi awal simulasi dengan nilai biomassa
 
 function step() { // iterasinya per langkah waktu, menghitung nilai biomassa dan air untuk setiap sel berdasarkan persamaan diferensial yang diberikan, termasuk efek pertumbuhan, kematian, interaksi antara biomassa dan air, serta difusi. Setelah menghitung nilai baru untuk semua sel, kita swap array untuk mempersiapkan iterasi berikutnya.
   const aVal = a.value, mVal = m.value
-  const rDp = dt * Dp / (dx * dx)
+  const rDp = dt * Dp / (dx * dx) 
   const rDw = dt * Dw / (dx * dx)
 
   for (let y = 0; y < N; y++) {
@@ -1018,15 +1018,15 @@ onMounted(() => {
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
 </style>
 
 <style scoped>
 .font-heading {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 .font-body {
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 .font-data {
   font-family: 'JetBrains Mono', monospace;
@@ -1041,30 +1041,38 @@ onMounted(() => {
 }
 
 .canvas-glow {
-  box-shadow: 0 0 40px rgba(94,234,212,0.05), inset 0 0 0 1px rgba(94,234,212,0.03);
+  box-shadow: 0 0 40px rgba(65, 201, 133, 0.07), inset 0 0 0 1px rgba(65, 201, 133, 0.12);
 }
 
 .card {
-  background: #0f1117;
-  border-radius: 1rem;
-  border: 1px solid #1a1d2b;
+  background: #0d1713;
+  border-radius: 0.8rem;
+  border: 1px solid #1f3229;
   padding: 1.25rem;
+  box-shadow: 4px 4px 0 0 #08110d;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 #08110d;
+  border-color: #2e4b3d;
 }
 
 .section-title {
   font-size: 0.65rem;
-  font-weight: 600;
-  color: #555d70;
+  font-weight: 700;
+  color: #83a592;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
 .metric-box {
-  background: rgba(10, 11, 16, 0.6);
+  background: rgba(11, 22, 17, 0.85);
   border-radius: 0.75rem;
   padding: 0.625rem;
-  border: 1px solid #13151e;
+  border: 1px solid #1f3229;
 }
 
 .metric-label {
@@ -1076,57 +1084,61 @@ onMounted(() => {
 }
 
 .eq-box {
-  background: #0a0b10;
+  background: #0b1712;
   border-radius: 0.625rem;
   padding: 0.75rem;
-  border: 1px solid #13151e;
+  border: 1px solid #1f3229;
 }
 
 .btn-secondary {
-  background: #13151e;
-  border: 1px solid #1a1d2b;
-  color: #8892a6;
+  background: #13231b;
+  border: 1px solid #1f3229;
+  color: #a4b8ac;
   font-size: 0.7rem;
   padding: 0.5rem 0.625rem;
-  border-radius: 0.75rem;
-  font-weight: 500;
+  border-radius: 0.6rem;
+  font-weight: 600;
   transition: all 0.2s;
-  font-family: 'Outfit', system-ui, sans-serif;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  box-shadow: 2px 2px 0 0 #08110d;
 }
 .btn-secondary:hover {
-  background: #1a1d2b;
-  color: #c0c8d8;
+  background: #1a2e24;
+  color: #d7e8df;
+  transform: translate(-1px, -1px);
 }
 
 .btn-capture {
-  background: #13151e;
-  border: 1px solid #1a1d2b;
-  color: #8892a6;
+  background: #13231b;
+  border: 1px solid #1f3229;
+  color: #a4b8ac;
   font-size: 0.85rem;
   padding: 0.5rem 0.625rem;
-  border-radius: 0.75rem;
+  border-radius: 0.6rem;
   transition: all 0.2s;
   line-height: 1;
+  box-shadow: 2px 2px 0 0 #08110d;
 }
 .btn-capture:hover {
-  background: #1a1d2b;
-  border-color: #5eead4;
-  color: #5eead4;
+  background: #1a2e24;
+  border-color: #3fb877;
+  color: #3fd08a;
+  transform: translate(-1px, -1px);
 }
 
 .config-row {
-  background: rgba(10, 11, 16, 0.6);
+  background: rgba(11, 22, 17, 0.85);
   border-radius: 0.5rem;
   padding: 0.375rem 0.625rem;
-  border: 1px solid #13151e;
+  border: 1px solid #1f3229;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 .config-label {
   font-size: 0.55rem;
-  color: #555d70;
-  font-family: 'Outfit', system-ui, sans-serif;
+  color: #83a592;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 .config-val {
   font-size: 0.65rem;
@@ -1141,7 +1153,7 @@ onMounted(() => {
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
-  background: #13151e;
+  background: #122019;
 }
 .slider::-webkit-slider-thumb {
   appearance: none;
@@ -1149,40 +1161,41 @@ onMounted(() => {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid #07080c;
+  border: 2px solid #08110d;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-.slider-teal::-webkit-slider-thumb { background: #5eead4; }
+.slider-teal::-webkit-slider-thumb { background: #32d583; }
 .slider-amber::-webkit-slider-thumb { background: #fbbf24; }
 .slider-slate::-webkit-slider-thumb { background: #64748b; }
 .slider-purple::-webkit-slider-thumb { background: #a78bfa; }
 
 .snap-card {
-  background: #0a0b10;
+  background: #0b1712;
   border-radius: 0.75rem;
-  border: 1px solid #13151e;
+  border: 1px solid #1f3229;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: 3px 3px 0 0 #08110d;
 }
 .snap-card:hover {
-  border-color: rgba(94,234,212,0.3);
-  transform: translateY(-2px);
+  border-color: rgba(63, 208, 138, 0.35);
+  transform: translate(-2px, -2px);
 }
 
 .snap-gallery::-webkit-scrollbar {
   height: 4px;
 }
 .snap-gallery::-webkit-scrollbar-track {
-  background: #0a0b10;
+  background: #0b1712;
   border-radius: 4px;
 }
 .snap-gallery::-webkit-scrollbar-thumb {
-  background: #1a1d2b;
+  background: #1f3229;
   border-radius: 4px;
 }
 .snap-gallery::-webkit-scrollbar-thumb:hover {
-  background: #252836;
+  background: #2b4638;
 }
 
 .animate-modal {
