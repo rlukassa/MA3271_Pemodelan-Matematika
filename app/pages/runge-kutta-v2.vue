@@ -9,9 +9,9 @@ const tEnd = ref(80)
 const dt = ref(0.02)
 
 const scenarios = ref([
-  { name: 'IC-A (Vegetasi Tinggi)', B0: 2.2, W0: 0.9, color: '#3fd08a' },
-  { name: 'IC-B (Vegetasi Rendah)', B0: 0.15, W0: 2.1, color: '#f1c35f' },
-  { name: 'IC-C (Dekat Gurun)', B0: 0.05, W0: 1.4, color: '#74a0e8' }
+  { name: 'IC-A (Vegetasi Tinggi)', B0: 2.2, R0: 0.9, color: '#3fd08a' },
+  { name: 'IC-B (Vegetasi Rendah)', B0: 0.15, R0: 2.1, color: '#f1c35f' },
+  { name: 'IC-C (Dekat Gurun)', B0: 0.05, R0: 1.4, color: '#74a0e8' }
 ])
 
 const proofGrid = ref(5)
@@ -34,13 +34,13 @@ let playTimer = null
 
 function eqAtA(av, mv) {
   const disc = av * av - 4 * mv * mv
-  const eqs = [{ name: 'Eq1', B: 0, W: av }]
+  const eqs = [{ name: 'Eq1', B: 0, R: av }]
   if (disc >= 0) {
     const sq = Math.sqrt(disc)
     const b2 = (av - sq) / (2 * mv)
     const b3 = (av + sq) / (2 * mv)
-    if (b2 > 0) eqs.push({ name: 'Eq2', B: b2, W: mv / b2 })
-    if (b3 > 0) eqs.push({ name: 'Eq3', B: b3, W: mv / b3 })
+    if (b2 > 0) eqs.push({ name: 'Eq2', B: b2, R: mv / b2 })
+    if (b3 > 0) eqs.push({ name: 'Eq3', B: b3, R: mv / b3 })
   }
   return eqs
 }
@@ -49,22 +49,22 @@ const eqValues = computed(() => {
   return eqAtA(a.value, m.value)
 })
 
-function rk4Step(B, W, av, mv, h) {
-  const fB = (b, w) => -mv * b + w * b * b
-  const fW = (b, w) => av - w - w * b * b
+function rk4Step(B, R, av, mv, h) {
+  const fB = (b, r) => -mv * b + r * b * b
+  const fR = (b, r) => av - r - r * b * b
 
-  const k1B = fB(B, W)
-  const k1W = fW(B, W)
-  const k2B = fB(B + 0.5 * h * k1B, W + 0.5 * h * k1W)
-  const k2W = fW(B + 0.5 * h * k1B, W + 0.5 * h * k1W)
-  const k3B = fB(B + 0.5 * h * k2B, W + 0.5 * h * k2W)
-  const k3W = fW(B + 0.5 * h * k2B, W + 0.5 * h * k2W)
-  const k4B = fB(B + h * k3B, W + h * k3W)
-  const k4W = fW(B + h * k3B, W + h * k3W)
+  const k1B = fB(B, R)
+  const k1R = fR(B, R)
+  const k2B = fB(B + 0.5 * h * k1B, R + 0.5 * h * k1R)
+  const k2R = fR(B + 0.5 * h * k1B, R + 0.5 * h * k1R)
+  const k3B = fB(B + 0.5 * h * k2B, R + 0.5 * h * k2R)
+  const k3R = fR(B + 0.5 * h * k2B, R + 0.5 * h * k2R)
+  const k4B = fB(B + h * k3B, R + h * k3R)
+  const k4R = fR(B + h * k3B, R + h * k3R)
 
   return {
     B: Math.max(0, B + (h / 6) * (k1B + 2 * k2B + 2 * k3B + k4B)),
-    W: Math.max(0, W + (h / 6) * (k1W + 2 * k2W + 2 * k3W + k4W))
+    R: Math.max(0, R + (h / 6) * (k1R + 2 * k2R + 2 * k3R + k4R))
   }
 }
 
@@ -77,42 +77,42 @@ function simulate(ic) {
 
   const t = [0]
   const B = [ic.B0]
-  const W = [ic.W0]
+  const R = [ic.R0]
 
   let b = ic.B0
-  let w = ic.W0
+  let r = ic.R0
 
   for (let i = 1; i <= steps; i++) {
-    const next = rk4Step(b, w, av, mv, h)
+    const next = rk4Step(b, r, av, mv, h)
     b = next.B
-    w = next.W
+    r = next.R
     if (i % keep === 0 || i === steps) {
       t.push(i * h)
       B.push(b)
-      W.push(w)
+      R.push(r)
     }
   }
 
-  return { t, B, W, finalB: b, finalW: w }
+  return { t, B, R, finalB: b, finalR: r }
 }
 
 function simulateWith(ic, av, mv, T, h) {
   const steps = Math.ceil(T / h)
   let b = ic.B0
-  let w = ic.W0
+  let r = ic.R0
   for (let i = 1; i <= steps; i++) {
-    const next = rk4Step(b, w, av, mv, h)
+    const next = rk4Step(b, r, av, mv, h)
     b = next.B
-    w = next.W
+    r = next.R
   }
-  return { finalB: b, finalW: w }
+  return { finalB: b, finalR: r }
 }
 
-function nearestEq(finalB, finalW, eqs) {
+function nearestEq(finalB, finalR, eqs) {
   let nearest = eqs[0]
   let dist = Number.POSITIVE_INFINITY
   for (const eq of eqs) {
-    const d = Math.hypot(finalB - eq.B, finalW - eq.W)
+    const d = Math.hypot(finalB - eq.B, finalR - eq.R)
     if (d < dist) {
       dist = d
       nearest = eq
@@ -121,10 +121,10 @@ function nearestEq(finalB, finalW, eqs) {
   return { nearest: nearest.name, dist }
 }
 
-function jacobianAt(B, W, mv, k2 = 0, db = 0, dr = 0) {
-  const j11 = -mv + 2 * W * B - db * k2
+function jacobianAt(B, R, mv, k2 = 0, db = 0, dr = 0) {
+  const j11 = -mv + 2 * R * B - db * k2
   const j12 = B * B
-  const j21 = -2 * W * B
+  const j21 = -2 * R * B
   const j22 = -1 - B * B - dr * k2
   return { j11, j12, j21, j22 }
 }
@@ -140,7 +140,7 @@ const results = computed(() => {
   const eqs = eqValues.value
   return scenarios.value.map((s) => {
     const sim = simulate(s)
-    const cls = nearestEq(sim.finalB, sim.finalW, eqs)
+    const cls = nearestEq(sim.finalB, sim.finalR, eqs)
     return { ...s, ...sim, nearest: cls.nearest, dist: cls.dist }
   })
 })
@@ -150,8 +150,8 @@ const basinProof = computed(() => {
   const n = Math.max(3, proofGrid.value)
   const bMin = 0.02
   const bMaxLocal = 3.2
-  const wMin = 0.2
-  const wMaxLocal = 3.0
+  const rMin = 0.2
+  const rMaxLocal = 3.0
 
   const counts = { Eq1: 0, Eq2: 0, Eq3: 0 }
   const samples = []
@@ -159,12 +159,12 @@ const basinProof = computed(() => {
   for (let i = 0; i < n; i++) {
     const b0 = bMin + (i / (n - 1)) * (bMaxLocal - bMin)
     for (let j = 0; j < n; j++) {
-      const w0 = wMin + (j / (n - 1)) * (wMaxLocal - wMin)
-      const out = simulateWith({ B0: b0, W0: w0 }, a.value, m.value, proofT.value, proofDt.value)
-      const cls = nearestEq(out.finalB, out.finalW, eqs)
+      const r0 = rMin + (j / (n - 1)) * (rMaxLocal - rMin)
+      const out = simulateWith({ B0: b0, R0: r0 }, a.value, m.value, proofT.value, proofDt.value)
+      const cls = nearestEq(out.finalB, out.finalR, eqs)
       if (counts[cls.nearest] !== undefined) counts[cls.nearest] += 1
       if (samples.length < 14) {
-        samples.push({ B0: b0, W0: w0, target: cls.nearest, dist: cls.dist })
+        samples.push({ B0: b0, R0: r0, target: cls.nearest, dist: cls.dist })
       }
     }
   }
@@ -186,8 +186,8 @@ const aShiftProof = computed(() => {
 
     const row = { a: av }
     for (const s of scenarios.value) {
-      const out = simulateWith({ B0: s.B0, W0: s.W0 }, av, m.value, proofT.value, proofDt.value)
-      const cls = nearestEq(out.finalB, out.finalW, eqs)
+      const out = simulateWith({ B0: s.B0, R0: s.R0 }, av, m.value, proofT.value, proofDt.value)
+      const cls = nearestEq(out.finalB, out.finalR, eqs)
       row[s.name] = cls.nearest
     }
     rows.push(row)
@@ -204,7 +204,7 @@ const videoFrames = computed(() => {
   const minA = Math.min(aVideoMin.value, aVideoMax.value)
   const maxA = Math.max(aVideoMin.value, aVideoMax.value)
   const frames = []
-  const carry = scenarios.value.map((s) => ({ name: s.name, B: s.B0, W: s.W0 }))
+  const carry = scenarios.value.map((s) => ({ name: s.name, B: s.B0, R: s.R0 }))
 
   for (let i = 0; i < steps; i++) {
     const av = minA + (i / (steps - 1)) * (maxA - minA)
@@ -212,19 +212,19 @@ const videoFrames = computed(() => {
     const endpoints = scenarios.value.map((s) => {
       const state = carry.find((c) => c.name === s.name)
       const ic = videoMode.value === 'continuation'
-        ? { B0: state ? state.B : s.B0, W0: state ? state.W : s.W0 }
-        : { B0: s.B0, W0: s.W0 }
+        ? { B0: state ? state.B : s.B0, R0: state ? state.R : s.R0 }
+        : { B0: s.B0, R0: s.R0 }
       const out = simulateWith(ic, av, m.value, videoT.value, videoDt.value)
       if (videoMode.value === 'continuation' && state) {
         state.B = out.finalB
-        state.W = out.finalW
+        state.R = out.finalR
       }
-      const cls = nearestEq(out.finalB, out.finalW, eqs)
+      const cls = nearestEq(out.finalB, out.finalR, eqs)
       return {
         name: s.name,
         color: s.color,
         B: out.finalB,
-        W: out.finalW,
+        R: out.finalR,
         target: cls.nearest,
         dist: cls.dist
       }
@@ -238,9 +238,9 @@ const videoFrames = computed(() => {
 const currentEqStability = computed(() => {
   if (!currentFrame.value) return []
   return currentFrame.value.eqs.map((eq) => {
-    const j = jacobianAt(eq.B, eq.W, m.value, 0, 0, 0)
+    const j = jacobianAt(eq.B, eq.R, m.value, 0, 0, 0)
     const s = stabilityLabel(j)
-    return { name: eq.name, B: eq.B, W: eq.W, ...s }
+    return { name: eq.name, B: eq.B, R: eq.R, ...s }
   })
 })
 
@@ -359,9 +359,9 @@ const bMax = computed(() => {
   return v * 1.05
 })
 
-const wMax = computed(() => {
+const rMax = computed(() => {
   let v = 1
-  for (const r of results.value) v = Math.max(v, ...r.W)
+  for (const r of results.value) v = Math.max(v, ...r.R)
   return v * 1.05
 })
 </script>
@@ -404,9 +404,10 @@ const wMax = computed(() => {
           <p class="ml-3">R_t = a - R - RB^2 + D_R R_xx</p>
           <p class="mt-2">Gangguan kecil di sekitar equilibrium (B_e, R_e):</p>
           <p class="ml-3">B(x,t) = B_e + ξ₁ e^(λt+ikx), R(x,t) = R_e + ξ₂ e^(λt+ikx)</p>
+          <p class="mt-2">Catatan: Gangguan (perturbation) dalam mode Fourier dideskripsikan dengan amplitude ξ yang tumbuh/menurun dengan laju λ (eigenvalue m<br/>atriks).</p>
           <p class="mt-2">Karena ∂²/∂x² menghasilkan -k² pada mode Fourier, matriks linear jadi:</p>
           <p class="ml-3">M(k) = J - k² diag(D_B, D_R)</p>
-          <p class="ml-3">J11 = -m + 2R_eB_e, J12 = B_e², J21 = -2R_eB_e, J22 = -1 - B_e²</p>
+          <p class="ml-3">J11 = -m + 2R_eB_e, J12 = B_e², J21 = -2R_eB_e, J22 = -1 - B_e² (Jacobian matrik)sepanjang dengan difusi: -k²D_B dan -k²D_R)</p>
           <p class="mt-2">Catatan jujur: panel RK4 ini memvalidasi dinamika lokal (temporal/ODE). Validasi spasial mode-k ditunjukkan di modul Turing Linear V2.</p>
         </div>
       </div>
@@ -528,7 +529,7 @@ const wMax = computed(() => {
                 <tr v-for="row in currentEqStability" :key="`stab-${row.name}`" class="border-b border-[#1b2c24]">
                   <td class="py-1.5 px-2">{{ row.name }}</td>
                   <td class="text-right py-1.5 px-2">{{ row.B.toFixed(4) }}</td>
-                  <td class="text-right py-1.5 px-2">{{ row.W.toFixed(4) }}</td>
+                  <td class="text-right py-1.5 px-2">{{ row.R.toFixed(4) }}</td>
                   <td class="text-right py-1.5 px-2">{{ row.trace.toFixed(5) }}</td>
                   <td class="text-right py-1.5 px-2">{{ row.det.toFixed(5) }}</td>
                   <td class="text-center py-1.5 px-2" :class="row.label === 'Stabil' ? 'text-[#3fd08a]' : 'text-[#e4c260]'">{{ row.label }}</td>
@@ -565,8 +566,8 @@ const wMax = computed(() => {
           <table class="w-full text-xs font-data">
             <thead>
               <tr class="border-b border-[#264034] text-[#8ca69a]">
-                <th class="text-right py-2 px-2">B0</th>
-                <th class="text-right py-2 px-2">R0</th>
+                <th class="text-right py-2 px-2">B₀</th>
+                <th class="text-right py-2 px-2">R₀</th>
                 <th class="text-center py-2 px-2">Eq Tujuan</th>
                 <th class="text-right py-2 px-2">Jarak</th>
               </tr>
@@ -574,7 +575,7 @@ const wMax = computed(() => {
             <tbody>
               <tr v-for="(s, idx) in basinProof.samples" :key="`basin-${idx}`" class="border-b border-[#1b2c24]">
                 <td class="text-right py-1.5 px-2">{{ s.B0.toFixed(3) }}</td>
-                <td class="text-right py-1.5 px-2">{{ s.W0.toFixed(3) }}</td>
+                <td class="text-right py-1.5 px-2">{{ s.R0.toFixed(3) }}</td>
                 <td class="text-center py-1.5 px-2">{{ s.target }}</td>
                 <td class="text-right py-1.5 px-2">{{ s.dist.toFixed(5) }}</td>
               </tr>
