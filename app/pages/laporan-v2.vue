@@ -74,7 +74,7 @@ const sections = [
     title: 'Konsistensi Notasi',
     key: 'notation',
     content: [
-      'Gunakan notasi yang sama pada laporan dan aplikasi (B, W, a, m, Db, Dw).',
+      'Gunakan notasi yang sama pada laporan dan aplikasi (B, R, a, m, Db, DR).',
       'Samakan istilah Bahasa Indonesia/Inggris agar tidak ambigu.',
       'Pastikan satuan dan domain variabel konsisten di semua bab.'
     ]

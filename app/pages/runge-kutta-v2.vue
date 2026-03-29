@@ -633,7 +633,7 @@ const rMax = computed(() => {
           <h2 class="section-title mb-3">Grafik t vs R(t)</h2>
           <svg :viewBox="`0 0 ${chartW} ${chartH + 30}`" class="w-full bg-[#0b1712] rounded-lg border border-[#21362b]" preserveAspectRatio="none">
             <line v-for="i in 4" :key="`gw${i}`" :x1="0" :x2="chartW" :y1="chartH * i / 5" :y2="chartH * i / 5" stroke="#1c2d25" stroke-width="0.8"/>
-            <path v-for="r in results" :key="`w-${r.name}`" :d="makePath(r.t, r.W, wMax)" fill="none" :stroke="r.color" stroke-width="2"/>
+            <path v-for="r in results" :key="`w-${r.name}`" :d="makePath(r.t, r.R, rMax)" fill="none" :stroke="r.color" stroke-width="2"/>
             <text x="6" y="14" class="axis">R(t)</text>
             <text :x="chartW / 2" :y="chartH + 22" class="axis" text-anchor="middle">Waktu t</text>
           </svg>

@@ -16,7 +16,7 @@ const eqUpper = computed(() => {
   if (disc < 0) return null
   const B = (av + Math.sqrt(disc)) / (2 * mv)
   if (B <= 0) return null
-  return { B, W: mv / B }
+  return { B, R: mv / B }
 })
 
 const J = computed(() => {

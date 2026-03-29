@@ -10,35 +10,35 @@ const steps = ref(26)
 const settleT = ref(28)
 const dt = ref(0.03)
 
-function rk4Step(B, W, a, mVal, h) {
-  const fB = (b, w) => -mVal * b + w * b * b
-  const fW = (b, w) => a - w - w * b * b
+function rk4Step(B, R, a, mVal, h) {
+  const fB = (b, r) => -mVal * b + r * b * b
+  const fR = (b, r) => a - r - r * b * b
 
-  const k1B = fB(B, W)
-  const k1W = fW(B, W)
-  const k2B = fB(B + 0.5 * h * k1B, W + 0.5 * h * k1W)
-  const k2W = fW(B + 0.5 * h * k1B, W + 0.5 * h * k1W)
-  const k3B = fB(B + 0.5 * h * k2B, W + 0.5 * h * k2W)
-  const k3W = fW(B + 0.5 * h * k2B, W + 0.5 * h * k2W)
-  const k4B = fB(B + h * k3B, W + h * k3W)
-  const k4W = fW(B + h * k3B, W + h * k3W)
+  const k1B = fB(B, R)
+  const k1R = fR(B, R)
+  const k2B = fB(B + 0.5 * h * k1B, R + 0.5 * h * k1R)
+  const k2R = fR(B + 0.5 * h * k1B, R + 0.5 * h * k1R)
+  const k3B = fB(B + 0.5 * h * k2B, R + 0.5 * h * k2R)
+  const k3R = fR(B + 0.5 * h * k2B, R + 0.5 * h * k2R)
+  const k4B = fB(B + h * k3B, R + h * k3R)
+  const k4R = fR(B + h * k3B, R + h * k3R)
 
   return {
     B: Math.max(0, B + (h / 6) * (k1B + 2 * k2B + 2 * k3B + k4B)),
-    W: Math.max(0, W + (h / 6) * (k1W + 2 * k2W + 2 * k3W + k4W))
+    R: Math.max(0, R + (h / 6) * (k1R + 2 * k2R + 2 * k3R + k4R))
   }
 }
 
-function settleAtA(B0, W0, aVal) {
+function settleAtA(B0, R0, aVal) {
   let B = B0
-  let W = W0
+  let R = R0
   const n = Math.ceil(settleT.value / dt.value)
   for (let i = 0; i < n; i++) {
-    const next = rk4Step(B, W, aVal, m.value, dt.value)
+    const next = rk4Step(B, R, aVal, m.value, dt.value)
     B = next.B
-    W = next.W
+    R = next.R
   }
-  return { B, W }
+  return { B, R }
 }
 
 const curves = computed(() => {
@@ -48,18 +48,18 @@ const curves = computed(() => {
     aVals.push(aHigh.value - (i / (n - 1)) * (aHigh.value - aLow.value))
   }
 
-  let fState = { B: 2.2, W: 1.0 }
+  let fState = { B: 2.2, R: 1.0 }
   const forward = []
   for (const aVal of aVals) {
-    fState = settleAtA(fState.B, fState.W, aVal)
+    fState = settleAtA(fState.B, fState.R, aVal)
     forward.push({ a: aVal, B: fState.B })
   }
 
   const aValsBack = [...aVals].reverse()
-  let bState = { B: forward[forward.length - 1].B, W: aValsBack[0] }
+  let bState = { B: forward[forward.length - 1].B, R: aValsBack[0] }
   const backward = []
   for (const aVal of aValsBack) {
-    bState = settleAtA(bState.B, bState.W, aVal)
+    bState = settleAtA(bState.B, bState.R, aVal)
     backward.push({ a: aVal, B: bState.B })
   }
 
