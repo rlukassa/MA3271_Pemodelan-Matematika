@@ -660,7 +660,7 @@ const rMax = computed(() => {
                   {{ r.name }}
                 </td>
                 <td class="text-right py-2 px-2">{{ r.finalB.toFixed(4) }}</td>
-                <td class="text-right py-2 px-2">{{ r.finalW.toFixed(4) }}</td>
+                <td class="text-right py-2 px-2">{{ r.finalR.toFixed(4) }}</td>
                 <td class="text-center py-2 px-2">{{ r.nearest }}</td>
                 <td class="text-right py-2 px-2" :class="r.dist < 0.1 ? 'text-[#3fd08a]' : 'text-[#d0b15e]'">{{ r.dist.toFixed(6) }}</td>
               </tr>
