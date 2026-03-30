@@ -123,12 +123,16 @@ const eqDotsRe = computed(() => {
           Diagram bifurkasi menunjukkan bagaimana <strong class="text-teal-400">titik kesetimbangan</strong> (equilibrium)
           berubah seiring perubahan parameter curah hujan <strong class="text-teal-400">a</strong>.
           Dari persamaan steady state dB/dt = 0 dan dR/dt = 0, diperoleh persamaan kuadrat
-          <span class="font-data">mB² − aB + m = 0</span> dengan solusi:
+          dengan bentuk:
         </p>
+        <LatexExpr class="mt-2" :expr="'mB^2-aB+m=0'" :block="true" />
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[11px] text-[#8892a6] space-y-1">
-          <p><span class="text-red-400">Eq1:</span> Be = 0, Re = a (solusi trivial / gurun)</p>
-          <p><span class="text-amber-400">Eq2:</span> Be = (a − √(a² − 4m²)) / 2m (saddle node)</p>
-          <p><span class="text-emerald-400">Eq3:</span> Be = (a + √(a² − 4m²)) / 2m (stabil atas)</p>
+          <p><span class="text-red-400">Eq1:</span></p>
+          <LatexExpr class="ml-2" :expr="'E_1:(B_e,R_e)=(0,a)'" :block="true" />
+          <p><span class="text-amber-400">Eq2:</span></p>
+          <LatexExpr class="ml-2" :expr="'B_e=\\frac{a-\\sqrt{a^2-4m^2}}{2m},\\quad R_e=\\frac{m}{B_e}'" :block="true" />
+          <p><span class="text-emerald-400">Eq3:</span></p>
+          <LatexExpr class="ml-2" :expr="'B_e=\\frac{a+\\sqrt{a^2-4m^2}}{2m},\\quad R_e=\\frac{m}{B_e}'" :block="true" />
           <p class="text-red-400/70 text-[10px] mt-1">Tipping point: a* = 2m = {{ aCrit.toFixed(3) }} — di bawah ini vegetasi kolaps!</p>
         </div>
       </div>

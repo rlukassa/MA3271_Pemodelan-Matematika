@@ -159,10 +159,10 @@ function fmtNum(n) {
           Eigenvalue dari Jacobian menentukan apakah equilibrium bersifat stabil, tidak stabil, atau saddle.
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[10px] text-[#8892a6] space-y-1">
-          <p>Jacobian J(Be, Re) = ∂(F,G)/∂(B,R) di titik equilibrium:</p>
-          <p class="ml-3">J = [[ −m + 2RB,  B² ],</p>
-          <p class="ml-3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ −2RB,    −1 − B² ]]</p>
-          <p class="mt-1.5 text-[9px]">Eigenvalue λ dari det(J − λI) = 0 → λ² − Tr(J)λ + det(J) = 0</p>
+          <p>Jacobian di titik equilibrium:</p>
+          <LatexExpr class="ml-3" :expr="'J(B_e,R_e)=\\frac{\\partial(F,G)}{\\partial(B,R)}'" :block="true" />
+          <LatexExpr class="ml-3" :expr="'J=\\begin{bmatrix}-m+2RB & B^2\\\\-2RB & -1-B^2\\end{bmatrix}'" :block="true" />
+          <LatexExpr class="mt-1.5" :expr="'\\det(J-\\lambda I)=0\\Rightarrow \\lambda^2-\\operatorname{Tr}(J)\\lambda+\\det(J)=0'" :block="true" />
           <p class="text-emerald-400/70">Stabil jika: <strong>kedua eigenvalue bagian real negatif</strong></p>
         </div>
       </div>

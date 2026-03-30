@@ -188,7 +188,9 @@ const kStarX = computed(() => {
 
       <div class="card">
         <h2 class="section-title mb-2">Catatan Presentasi</h2>
-        <p class="text-sm text-[#9ab0a3] leading-relaxed">Gunakan halaman ini saat menjelaskan tahap linearisasi PDE: matriks mode Fourier A(k) = J - k^2 D, lalu tunjukkan bahwa tanda λ_max(k) adalah indikator pertumbuhan mode spasial. Ini langsung menutup kebutuhan analisis dispersi terhadap k.</p>
+        <p class="text-sm text-[#9ab0a3] leading-relaxed">Gunakan halaman ini saat menjelaskan tahap linearisasi PDE melalui matriks mode Fourier berikut:</p>
+        <LatexExpr class="mt-1" :expr="'A(k)=J-k^2D,\\quad \\lambda_{\\max}(k)>0\\Rightarrow \\text{mode spasial tumbuh}'" :block="true" />
+        <p class="text-sm text-[#9ab0a3] leading-relaxed">Ini langsung menutup kebutuhan analisis dispersi terhadap k.</p>
       </div>
     </div>
   </div>

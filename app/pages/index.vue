@@ -847,11 +847,11 @@ onMounted(() => {
           <div class="card">
             <h2 class="section-title mb-3">Persamaan Model</h2>
             <div class="text-[11px] sm:text-sm text-[#8892a6] space-y-2 font-data leading-relaxed eq-box">
-              <p>dB/dt = &minus;m &middot; B + R &middot; B&sup2;</p>
-              <p>dR/dt = a &minus; R &minus; R &middot; B&sup2;</p>
+              <LatexExpr :expr="'\\frac{dB}{dt}=-mB+RB^2'" :block="true" />
+              <LatexExpr :expr="'\\frac{dR}{dt}=a-R-RB^2'" :block="true" />
             </div>
             <div class="mt-2.5 text-[8px] sm:text-[10px] text-[#3a3f50] font-body space-y-0.5">
-              <p>D<sub>b</sub> = {{ Dp }} &middot; D<sub>R</sub> = {{ Dw }} m&sup2; thn&#x207B;&sup1;</p>
+              <LatexExpr :expr="`D_b=${Dp},\\;D_R=${Dw}\\;\\text{m}^2\\,\\text{thn}^{-1}`" :block="true" />
               <p class="italic">Coupling difusi ditambahkan secara numerik untuk simulasi spasial.</p>
             </div>
           </div>

@@ -221,9 +221,9 @@ onMounted(() => runSimulation())
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[10px] text-[#8892a6] space-y-1">
           <p>Sistem ODE (tanpa difusi):</p>
-          <p class="ml-3">dB/dt = −mB + RB²</p>
-          <p class="ml-3">dR/dt = a − R − RB²</p>
-          <p class="mt-1.5 text-[9px]">RK4: y_{n+1} = y_n + (h/6)(k₁ + 2k₂ + 2k₃ + k₄), orde akurasi O(h⁴)</p>
+          <LatexExpr class="ml-3" :expr="'\\frac{dB}{dt}=-mB+RB^2'" :block="true" />
+          <LatexExpr class="ml-3" :expr="'\\frac{dR}{dt}=a-R-RB^2'" :block="true" />
+          <LatexExpr class="mt-1.5" :expr="'y_{n+1}=y_n+\\frac{h}{6}(k_1+2k_2+2k_3+k_4),\\;\\text{orde }O(h^4)'" :block="true" />
         </div>
       </div>
 

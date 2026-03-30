@@ -162,8 +162,10 @@ onMounted(computeTrajectories)
           dari berbagai initial condition.
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[10px] text-[#8892a6] space-y-1">
-          <p><span class="text-emerald-400">dB/dt = 0:</span> R = m/B (hiperbola)</p>
-          <p><span class="text-sky-400">dR/dt = 0:</span> R = a/(1 + B²) (Lorentzian)</p>
+          <p><span class="text-emerald-400">Nullcline 1:</span></p>
+          <LatexExpr class="ml-2" :expr="'\\frac{dB}{dt}=0:\\;R=\\frac{m}{B}'" :block="true" />
+          <p><span class="text-sky-400">Nullcline 2:</span></p>
+          <LatexExpr class="ml-2" :expr="'\\frac{dR}{dt}=0:\\;R=\\frac{a}{1+B^2}'" :block="true" />
           <p class="mt-1.5 text-[9px]">Panah vektor menunjukkan arah aliran, trajectory dihitung dengan RK4.</p>
         </div>
       </div>
