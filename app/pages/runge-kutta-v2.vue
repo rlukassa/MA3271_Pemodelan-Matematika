@@ -397,21 +397,27 @@ const rMax = computed(() => {
       </div>
 
       <div class="card">
-        <h2 class="section-title mb-2">Formulasi V2 (PDE ke Linearisasi Mode-k)</h2>
-        <div class="font-data text-xs leading-relaxed text-[#b8cbc2] space-y-1">
-          <p>Model PDE:</p>
-          <LatexExpr class="ml-3" :expr="'\\partial_t B = -mB + RB^2 + D_B\\,\\partial_{xx}B'" :block="true" />
-          <LatexExpr class="ml-3" :expr="'\\partial_t R = a - R - RB^2 + D_R\\,\\partial_{xx}R'" :block="true" />
-          <p class="mt-2">Gangguan kecil di sekitar equilibrium (B_e, R_e):</p>
-          <LatexExpr class="ml-3" :expr="'B(x,t)=B_e+\\xi_1e^{\\lambda t+ikx},\\quad R(x,t)=R_e+\\xi_2e^{\\lambda t+ikx}'" :block="true" />
-          <p class="mt-2">Catatan: gangguan (perturbation) mode Fourier dideskripsikan oleh amplitudo ξ yang tumbuh/menurun dengan laju λ (eigenvalue matriks).</p>
-          <p class="mt-2">Karena ∂²/∂x² menghasilkan -k² pada mode Fourier, matriks linear jadi:</p>
-          <LatexExpr class="ml-3" :expr="'M(k)=J-k^2\\operatorname{diag}(D_B,D_R)'" :block="true" />
-          <LatexExpr class="ml-3" :expr="'J_{11}=-m+2R_eB_e,\\;J_{12}=B_e^2,\\;J_{21}=-2R_eB_e,\\;J_{22}=-1-B_e^2'" :block="true" />
-          <LatexExpr class="ml-3" :expr="'J_{11}\\mapsto J_{11}-k^2D_B,\\quad J_{22}\\mapsto J_{22}-k^2D_R'" :block="true" />
-          <p class="mt-2">Catatan jujur: panel RK4 ini memvalidasi dinamika lokal (temporal/ODE). Validasi spasial mode-k ditunjukkan di modul Turing Linear V2.</p>
-        </div>
-      </div>
+  <h2 class="section-title mb-2 text-lg font-bold">Formulasi V2 (PDE ke Linearisasi Mode-k)</h2>
+  <div class="font-data text-xs leading-relaxed text-[#b8cbc2] space-y-1">
+    <p>Model PDE:</p>
+    <LatexExpr class="ml-3" :expr="'\\frac{\\partial B}{\\partial t} = -mB + RB^2 + D_B \\frac{\\partial^2 B}{\\partial X^2}'" :block="true" />
+    <LatexExpr class="ml-3" :expr="'\\frac{\\partial R}{\\partial t} = a - R - RB^2 + D_R \\frac{\\partial^2 R}{\\partial X^2}'" :block="true" />
+    
+    <p class="mt-2 flex items-center flex-wrap gap-1">
+      Gangguan kecil di sekitar equilibrium
+      <LatexExpr :expr="'(B_e, R_e)'" :inline="true" />:
+    </p>
+    <LatexExpr class="ml-3" :expr="'B(X,t)=B_e+\\xi_1e^{\\lambda t+ikX}, \\quad R(X,t)=R_e+\\xi_2e^{\\lambda t+ikX}'" :block="true" />
+    <p class="mt-2">Catatan: Gangguan dideskripsikan oleh amplitudo <LatexExpr :expr="'\\xi'" :inline="true" /> yang tumbuh/menurun dengan laju <LatexExpr :expr="'\\lambda'" :inline="true" /> (eigenvalue).</p>
+    <p class="mt-2 text-yellow-100/80 italic">Karena <LatexExpr :expr="'\\partial^2/\\partial X^2'" :inline="true" /> menghasilkan <LatexExpr :expr="'-k^2'" :inline="true" /> pada mode Fourier, matriks stabilitas:</p>
+    <LatexExpr class="ml-3" :expr="'\\mathbf{M}(k) = \\mathbf{J} - k^2 \\text{diag}(D_B, D_R)'" :block="true" />
+    <div class="bg-black/20 p-2 rounded">
+      <LatexExpr :expr="'J_{11}=-m+2R_eB_e, \\quad J_{12}=B_e^2'" :block="true" />
+      <LatexExpr :expr="'J_{21}=-2R_eB_e, \\quad J_{22}=-1-B_e^2'" :block="true" />
+    </div>
+    <p class="mt-2 text-[10px] opacity-70">Validasi spasial mode-k ditunjukkan di modul Turing Linear V2.</p>
+    </div>
+  </div>
 
       <div class="card">
         <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
