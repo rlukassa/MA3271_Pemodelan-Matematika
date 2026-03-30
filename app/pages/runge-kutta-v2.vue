@@ -404,10 +404,11 @@ const rMax = computed(() => {
           <p class="ml-3">R_t = a - R - RB^2 + D_R R_xx</p>
           <p class="mt-2">Gangguan kecil di sekitar equilibrium (B_e, R_e):</p>
           <p class="ml-3">B(x,t) = B_e + ξ₁ e^(λt+ikx), R(x,t) = R_e + ξ₂ e^(λt+ikx)</p>
-          <p class="mt-2">Catatan: Gangguan (perturbation) dalam mode Fourier dideskripsikan dengan amplitude ξ yang tumbuh/menurun dengan laju λ (eigenvalue m<br/>atriks).</p>
+          <p class="mt-2">Catatan: gangguan (perturbation) mode Fourier dideskripsikan oleh amplitudo ξ yang tumbuh/menurun dengan laju λ (eigenvalue matriks).</p>
           <p class="mt-2">Karena ∂²/∂x² menghasilkan -k² pada mode Fourier, matriks linear jadi:</p>
           <p class="ml-3">M(k) = J - k² diag(D_B, D_R)</p>
-          <p class="ml-3">J11 = -m + 2R_eB_e, J12 = B_e², J21 = -2R_eB_e, J22 = -1 - B_e² (Jacobian matrik)sepanjang dengan difusi: -k²D_B dan -k²D_R)</p>
+          <p class="ml-3">J11 = -m + 2R_eB_e, J12 = B_e², J21 = -2R_eB_e, J22 = -1 - B_e²</p>
+          <p class="ml-3">Dengan difusi: J11 → J11 - k²D_B dan J22 → J22 - k²D_R</p>
           <p class="mt-2">Catatan jujur: panel RK4 ini memvalidasi dinamika lokal (temporal/ODE). Validasi spasial mode-k ditunjukkan di modul Turing Linear V2.</p>
         </div>
       </div>

@@ -305,7 +305,7 @@ function captureSnapshot(isAuto = false) { // tangkap snapshot
 
   actx.font = '13px monospace'
   actx.fillStyle = '#c0c8d8'
-  actx.fillText(`a=${a.value.toFixed(2)}  m=${m.value.toFixed(2)}  B_avg=${stats.value.Bavg.toFixed(3)}  W_avg=${stats.value.Wavg.toFixed(3)}`, 10, size + 38)
+  actx.fillText(`a=${a.value.toFixed(2)}  m=${m.value.toFixed(2)}  B_avg=${stats.value.Bavg.toFixed(3)}  R_avg=${stats.value.Wavg.toFixed(3)}`, 10, size + 38)
 
   const statusLabel = ecosystemStatus.value.label
   const statusColors = { 'Gurun (Kolaps)': '#f87171', 'Hutan Penuh (Homogen)': '#34d399', 'Berpola (Pola Turing)': '#22d3ee', 'Transisi': '#fbbf24' }
@@ -669,7 +669,7 @@ onMounted(() => {
           <img :src="snapshots[modalIdx].dataUrl" class="w-full rounded-xl canvas-pixel border border-[#1a1d2b]" :alt="'Snapshot at t=' + snapshots[modalIdx].time.toFixed(1)" />
           <div class="mt-2 flex gap-4 text-[9px] sm:text-[10px] text-[#555d70] font-data">
             <span>B_avg = {{ snapshots[modalIdx].Bavg.toFixed(3) }}</span>
-            <span>W_avg = {{ snapshots[modalIdx].Wavg.toFixed(3) }}</span>
+            <span>R_avg = {{ snapshots[modalIdx].Wavg.toFixed(3) }}</span>
             <span>{{ snapshots[modalIdx].status }}</span>
           </div>
         </div>
@@ -699,7 +699,7 @@ onMounted(() => {
         <h3 class="text-xs font-body font-semibold text-teal-400 mb-1.5">Tentang Fitur Ini</h3>
         <p class="text-[11px] sm:text-xs text-[#8892a6] font-body leading-relaxed">
           Simulasi 2D menjalankan Model Klausmeier pada grid {{ N }}×{{ N }} piksel menggunakan metode Euler Eksplisit.
-          Coupling difusi (D<sub>p</sub>={{ Dp }}, D<sub>w</sub>={{ Dw }}) diterapkan secara numerik untuk menghasilkan
+          Coupling difusi (D<sub>b</sub>={{ Dp }}, D<sub>R</sub>={{ Dw }}) diterapkan secara numerik untuk menghasilkan
           pola Turing — pola spasial terorganisir mandiri berupa labirin, titik, atau celah yang muncul
           akibat instabilitas difusi. Ubah parameter <strong class="text-teal-400">a</strong> (curah hujan) dan
           <strong class="text-amber-400">m</strong> (kematian) untuk mengamati transisi ekosistem.
@@ -838,7 +838,7 @@ onMounted(() => {
                 <p class="font-data text-sm sm:text-lg text-teal-400">{{ stats.Bvar.toFixed(4) }}</p>
               </div>
               <div class="metric-box">
-                <p class="metric-label">W_avg</p>
+                <p class="metric-label">R_avg</p>
                 <p class="font-data text-sm sm:text-lg text-sky-400">{{ stats.Wavg.toFixed(3) }}</p>
               </div>
             </div>
@@ -851,7 +851,7 @@ onMounted(() => {
               <p>dR/dt = a &minus; R &minus; R &middot; B&sup2;</p>
             </div>
             <div class="mt-2.5 text-[8px] sm:text-[10px] text-[#3a3f50] font-body space-y-0.5">
-              <p>D<sub>p</sub> = {{ Dp }} &middot; D<sub>w</sub> = {{ Dw }} m&sup2; thn&#x207B;&sup1;</p>
+              <p>D<sub>b</sub> = {{ Dp }} &middot; D<sub>R</sub> = {{ Dw }} m&sup2; thn&#x207B;&sup1;</p>
               <p class="italic">Coupling difusi ditambahkan secara numerik untuk simulasi spasial.</p>
             </div>
           </div>
@@ -863,8 +863,8 @@ onMounted(() => {
               <div class="config-row"><span class="config-label">Total Sel</span><span class="config-val">{{ totalCells.toLocaleString() }}</span></div>
               <div class="config-row"><span class="config-label">dx</span><span class="config-val">{{ dx }} m</span></div>
               <div class="config-row"><span class="config-label">dt</span><span class="config-val">{{ dt }} thn</span></div>
-              <div class="config-row"><span class="config-label">D<sub>p</sub></span><span class="config-val">{{ Dp }} m&sup2;/thn</span></div>
-              <div class="config-row"><span class="config-label">D<sub>w</sub></span><span class="config-val">{{ Dw }} m&sup2;/thn</span></div>
+              <div class="config-row"><span class="config-label">D<sub>b</sub></span><span class="config-val">{{ Dp }} m&sup2;/thn</span></div>
+              <div class="config-row"><span class="config-label">D<sub>R</sub></span><span class="config-val">{{ Dw }} m&sup2;/thn</span></div>
               <div class="config-row col-span-2"><span class="config-label">Iterasi/frame</span><span class="config-val">{{ stepsPerFrame }} &times; dt = {{ (stepsPerFrame * dt).toFixed(3) }} thn/frame</span></div>
             </div>
           </div>
@@ -913,7 +913,7 @@ onMounted(() => {
         </svg>
         <div class="flex gap-4 sm:gap-6 mt-2 text-[9px] sm:text-xs text-[#555d70] font-body">
           <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-400 inline-block rounded"></span> B_avg (Biomassa)</span>
-          <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-blue-400 inline-block rounded"></span> W_avg (Air)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-blue-400 inline-block rounded"></span> R_avg (Air)</span>
         </div>
       </div>
 
@@ -998,14 +998,14 @@ onMounted(() => {
               />
             </template>
 
-            <text x="5" y="11" fill="#555d70" font-size="9" class="font-svg-data">W</text>
+            <text x="5" y="11" fill="#555d70" font-size="9" class="font-svg-data">R</text>
             <text :x="phaseW / 2" :y="phaseH + 26" fill="#555d70" font-size="9" text-anchor="middle" class="font-svg-data">Biomassa (B)</text>
             <text x="5" :y="phaseH + 15" fill="#555d70" font-size="8" class="font-svg-data">B = 0</text>
             <text :x="phaseW - 5" :y="phaseH + 15" fill="#555d70" font-size="8" text-anchor="end" class="font-svg-data">B = 5</text>
           </svg>
           <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[8px] sm:text-[10px] text-[#555d70] font-body">
             <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-emerald-400 inline-block rounded"></span> dB/dt = 0</span>
-            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-blue-400 inline-block rounded"></span> dW/dt = 0</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-0.5 bg-blue-400 inline-block rounded"></span> dR/dt = 0</span>
             <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-emerald-400 inline-block rounded-full"></span> Stabil</span>
             <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 border border-amber-400 inline-block rounded-full"></span> Saddle</span>
             <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 bg-red-400 inline-block rounded-full"></span> Gurun</span>

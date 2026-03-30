@@ -6,7 +6,7 @@ useHead({ title: 'Turing Linear V2 · Dispersi dan Stabilitas' })
 const a = ref(2.0)
 const m = ref(0.45)
 const Db = ref(0.05)
-const Dw = ref(2.0)
+const DR = ref(2.0)
 const kMax = ref(3.0)
 
 const eqUpper = computed(() => {
@@ -39,7 +39,7 @@ function maxRealEigenAtK2(k2) {
   const a11 = mat.j11 - Db.value * k2
   const a12 = mat.j12
   const a21 = mat.j21
-  const a22 = mat.j22 - Dw.value * k2
+  const a22 = mat.j22 - DR.value * k2
 
   const tr = a11 + a22
   const det = a11 * a22 - a12 * a21
@@ -147,8 +147,8 @@ const kStarX = computed(() => {
             <input v-model.number="Db" type="range" min="0.005" max="0.30" step="0.001" class="slider slider-slate">
           </label>
           <label>
-            <span class="label">D_w: {{ Dw.toFixed(3) }}</span>
-            <input v-model.number="Dw" type="range" min="0.05" max="4.0" step="0.01" class="slider slider-slate">
+            <span class="label">D_R: {{ DR.toFixed(3) }}</span>
+            <input v-model.number="DR" type="range" min="0.05" max="4.0" step="0.01" class="slider slider-slate">
           </label>
           <label>
             <span class="label">k_max: {{ kMax.toFixed(2) }}</span>

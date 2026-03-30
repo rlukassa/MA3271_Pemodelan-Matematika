@@ -29,7 +29,7 @@ const sections = [
     title: 'Bab Metode Numerik (RK4)',
     key: 'rk4Method',
     content: [
-      'Tuliskan skema RK4 untuk sistem dua variabel B dan W.',
+      'Tuliskan skema RK4 untuk sistem dua variabel B dan R.',
       'Cantumkan pemilihan langkah waktu h dan horizon waktu simulasi.',
       'Jelaskan alasan stabilitas numerik untuk rentang parameter yang digunakan.'
     ]
@@ -56,7 +56,7 @@ const sections = [
     title: 'Bab Sweep Parameter',
     key: 'parameterSweep',
     content: [
-      'Sajikan peta fase kuantitatif terhadap parameter a dan rasio Dw/Db.',
+      'Sajikan peta fase kuantitatif terhadap parameter a dan rasio D_R/Db.',
       'Gunakan klasifikasi regime: desert, uniform, pattern, unstable.',
       'Hubungkan hasil peta dengan narasi ekologis model (degradasi/pemulihan).' 
     ]

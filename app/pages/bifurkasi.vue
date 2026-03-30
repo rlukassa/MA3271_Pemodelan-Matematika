@@ -122,7 +122,7 @@ const eqDotsRe = computed(() => {
         <p class="text-[11px] sm:text-xs text-[#8892a6] font-body leading-relaxed">
           Diagram bifurkasi menunjukkan bagaimana <strong class="text-teal-400">titik kesetimbangan</strong> (equilibrium)
           berubah seiring perubahan parameter curah hujan <strong class="text-teal-400">a</strong>.
-          Dari persamaan steady state dB/dt = 0 dan dW/dt = 0, diperoleh persamaan kuadrat
+          Dari persamaan steady state dB/dt = 0 dan dR/dt = 0, diperoleh persamaan kuadrat
           <span class="font-data">mB² − aB + m = 0</span> dengan solusi:
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[11px] text-[#8892a6] space-y-1">
@@ -225,9 +225,9 @@ const eqDotsRe = computed(() => {
 
       <!-- Bifurcation Chart: Re vs a -->
       <div class="card">
-        <h2 class="section-title mb-3">Grafik 2: a vs Re <span class="text-sky-400/60">(Air Equilibrium)</span></h2>
+        <h2 class="section-title mb-3">Grafik 2: a vs Re <span class="text-sky-400/60">(R* / Air Equilibrium)</span></h2>
         <p class="text-[10px] text-[#555d70] font-body mb-3">
-          Grafik ini menunjukkan kesetimbangan air (Re = W*). Re = m/Be untuk solusi non-trivial.
+          Grafik ini menunjukkan kesetimbangan air (Re = R*). Re = m/Be untuk solusi non-trivial.
           Pada gurun (Eq1), Re = a (seluruh air tersimpan tanpa diserap vegetasi).
           Perhatikan bahwa Re pada cabang stabil atas <em>lebih rendah</em> — vegetasi menyerap air.
         </p>

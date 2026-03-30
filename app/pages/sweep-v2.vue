@@ -15,7 +15,7 @@ const nx = 42
 const ny = 22
 
 function classifyCell(a, ratio) {
-  const Dw = ratio * Db.value
+  const DR = ratio * Db.value
   const disc = a * a - 4 * m.value * m.value
   if (disc < 0) return 'desert'
 
@@ -35,7 +35,7 @@ function classifyCell(a, ratio) {
   for (let k = 0; k <= kMax.value; k += 0.05) {
     const k2 = k * k
     const a11 = j11 - Db.value * k2
-    const a22 = j22 - Dw * k2
+    const a22 = j22 - DR * k2
     const tr = a11 + a22
     const det = a11 * a22 - j12 * j21
     const discK = tr * tr - 4 * det
@@ -89,7 +89,7 @@ const markerY = computed(() => H - ((selectedInfo.value.r - ratioMin) / (ratioMa
     <div class="max-w-[1300px] mx-auto px-4 sm:px-6 py-6 space-y-5">
       <div class="card">
         <h1 class="text-lg sm:text-xl font-heading font-bold">Parameter Sweep V2: Atlas Pola Kuantitatif</h1>
-        <p class="text-xs text-[#9ab0a3] mt-1">Halaman ini menutup gap peta fase parameter (a vs rasio D_w / D_b) untuk indikasi pola spasial.</p>
+        <p class="text-xs text-[#9ab0a3] mt-1">Halaman ini menutup gap peta fase parameter (a vs rasio D_R / D_b) untuk indikasi pola spasial.</p>
       </div>
 
       <div class="card">
@@ -111,7 +111,7 @@ const markerY = computed(() => H - ((selectedInfo.value.r - ratioMin) / (ratioMa
       </div>
 
       <div class="card">
-        <h2 class="section-title mb-3">Atlas Warna: a vs D_w / D_b</h2>
+        <h2 class="section-title mb-3">Atlas Warna: a vs D_R / D_b</h2>
         <svg :viewBox="`0 0 ${W} ${H + 34}`" class="w-full bg-[#0b1712] border border-[#21362b] rounded-lg" preserveAspectRatio="none">
           <rect v-for="cell in grid" :key="`${cell.i}-${cell.j}`"
             :x="cell.i * cw" :y="H - (cell.j + 1) * ch" :width="cw + 0.4" :height="ch + 0.4"
@@ -121,7 +121,7 @@ const markerY = computed(() => H - ((selectedInfo.value.r - ratioMin) / (ratioMa
           <line v-for="i in 6" :key="`vy-${i}`" x1="0" :x2="W" :y1="H * i / 6" :y2="H * i / 6" stroke="#1d2d26" stroke-width="0.8"/>
 
           <circle :cx="markerX" :cy="markerY" r="6" fill="#f5f7f6" stroke="#111" stroke-width="1.6"/>
-          <text x="8" y="13" class="axis">Rasio D_w / D_b</text>
+          <text x="8" y="13" class="axis">Rasio D_R / D_b</text>
           <text :x="W / 2" :y="H + 24" class="axis" text-anchor="middle">Curah hujan a</text>
         </svg>
 
@@ -139,7 +139,7 @@ const markerY = computed(() => H - ((selectedInfo.value.r - ratioMin) / (ratioMa
               <input v-model.number="selectedA" type="range" :min="aMin" :max="aMax" step="0.01" class="slider slider-green">
             </label>
             <label>
-              <span class="label">Rasio uji D_w / D_b: {{ selectedR.toFixed(1) }}</span>
+              <span class="label">Rasio uji D_R / D_b: {{ selectedR.toFixed(1) }}</span>
               <input v-model.number="selectedR" type="range" :min="ratioMin" :max="ratioMax" step="0.5" class="slider slider-slate">
             </label>
             <p class="text-sm">Status titik uji: <span class="font-data" :style="{ color: legend[selectedInfo.cls] }">{{ selectedInfo.cls }}</span></p>

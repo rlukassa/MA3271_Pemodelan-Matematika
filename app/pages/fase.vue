@@ -19,8 +19,8 @@ function toSvg(bVal, wVal) {
 
 const nullclines = computed(() => {
   const mVal = m.value, aVal = a.value
-  const bNull = [] // dB/dt = 0: W = m/B
-  const wNull = [] // dR/dt = 0: W = a/(1+R²)
+  const bNull = [] // dB/dt = 0: R = m/B
+  const wNull = [] // dR/dt = 0: R = a/(1+B²)
 
   for (let bv = 0.02; bv <= bRange; bv += 0.02) {
     const wv = mVal / bv
@@ -157,13 +157,13 @@ onMounted(computeTrajectories)
         <h3 class="text-xs font-body font-semibold text-teal-400 mb-1.5">Tentang Fitur Ini</h3>
         <p class="text-[11px] sm:text-xs text-[#8892a6] font-body leading-relaxed">
           Potret fase menampilkan <strong class="text-teal-400">nullclines</strong> dan <strong class="text-teal-400">trajectory</strong>
-          di bidang (B, W). Nullclines adalah kurva di mana turunan bernilai nol: dB/dt = 0 (hijau) dan dW/dt = 0 (biru).
+          di bidang (B, R). Nullclines adalah kurva di mana turunan bernilai nol: dB/dt = 0 (hijau) dan dR/dt = 0 (biru).
           Titik potong nullclines adalah <em>titik kesetimbangan</em>. Trajectory menunjukkan <strong class="text-amber-400">ke mana solusi akan lari</strong>
           dari berbagai initial condition.
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[10px] text-[#8892a6] space-y-1">
-          <p><span class="text-emerald-400">dB/dt = 0:</span> W = m/B (hiperbola)</p>
-          <p><span class="text-sky-400">dW/dt = 0:</span> W = a/(1 + B²) (Lorentzian)</p>
+          <p><span class="text-emerald-400">dB/dt = 0:</span> R = m/B (hiperbola)</p>
+          <p><span class="text-sky-400">dR/dt = 0:</span> R = a/(1 + B²) (Lorentzian)</p>
           <p class="mt-1.5 text-[9px]">Panah vektor menunjukkan arah aliran, trajectory dihitung dengan RK4.</p>
         </div>
       </div>
@@ -204,7 +204,7 @@ onMounted(computeTrajectories)
 
       <!-- Phase Portrait SVG -->
       <div class="card">
-        <h2 class="section-title mb-3">Potret Fase (B, W)</h2>
+        <h2 class="section-title mb-3">Potret Fase (B, R)</h2>
         <svg :viewBox="`0 0 ${W_SVG} ${H_SVG + 35}`" class="w-full bg-[#0a0b10] rounded-xl border border-[#13151e]" preserveAspectRatio="xMidYMid meet">
           <defs>
             <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
@@ -251,7 +251,7 @@ onMounted(computeTrajectories)
           </template>
 
           <!-- Axis labels -->
-          <text x="5" y="14" fill="#555d70" font-size="10" class="font-svg-data">W (Air)</text>
+          <text x="5" y="14" fill="#555d70" font-size="10" class="font-svg-data">R (Air)</text>
           <text :x="W_SVG / 2" :y="H_SVG + 28" fill="#555d70" font-size="10" text-anchor="middle" class="font-svg-data">B (Biomassa)</text>
           <text x="5" :y="H_SVG + 16" fill="#3a3f50" font-size="8" class="font-svg-data">0</text>
           <text :x="W_SVG - 5" :y="H_SVG + 16" fill="#3a3f50" font-size="8" text-anchor="end" class="font-svg-data">{{ bRange }}</text>
@@ -260,7 +260,7 @@ onMounted(computeTrajectories)
         </svg>
         <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2 text-[9px] text-[#555d70] font-body">
           <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-emerald-400 inline-block rounded"></span> dB/dt = 0</span>
-          <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-blue-400 inline-block rounded"></span> dW/dt = 0</span>
+          <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-blue-400 inline-block rounded"></span> dR/dt = 0</span>
           <span class="flex items-center gap-1"><span class="w-2 h-2 bg-emerald-400 inline-block rounded-full"></span> Stabil</span>
           <span class="flex items-center gap-1"><span class="w-2 h-2 border border-amber-400 inline-block rounded-full"></span> Saddle</span>
           <span class="flex items-center gap-1"><span class="w-2 h-2 bg-red-400 inline-block rounded-full"></span> Gurun</span>
@@ -280,7 +280,7 @@ onMounted(computeTrajectories)
               <tr class="border-b border-[#1a1d2b]">
                 <th class="py-2 px-3 text-left text-[#555d70]">IC</th>
                 <th class="py-2 px-3 text-right text-[#555d70]">B₀</th>
-                <th class="py-2 px-3 text-right text-[#555d70]">W₀</th>
+                <th class="py-2 px-3 text-right text-[#555d70]">R₀</th>
                 <th class="py-2 px-3 text-center text-[#555d70]">Konvergen ke</th>
                 <th class="py-2 px-3 text-right text-[#555d70]">Jarak</th>
               </tr>

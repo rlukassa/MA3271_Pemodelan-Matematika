@@ -217,12 +217,12 @@ onMounted(() => runSimulation())
           Fitur ini menyelesaikan sistem ODE Klausmeier <strong class="text-teal-400">tanpa difusi</strong> menggunakan
           metode <strong class="text-teal-400">Runge-Kutta orde 4 (RK4)</strong> — metode numerik yang lebih akurat
           dari Euler. Tujuannya untuk <em>cross-check</em>: apakah solusi konvergen ke equilibrium yang diprediksi
-          oleh analisis Jacobian? Dari initial condition (B₀, W₀), kita lihat solusi lari ke Eq1, Eq2, atau Eq3.
+          oleh analisis Jacobian? Dari initial condition (B₀, R₀), kita lihat solusi lari ke Eq1, Eq2, atau Eq3.
         </p>
         <div class="mt-2 p-3 bg-[#0a0b10] rounded-lg border border-[#13151e] font-data text-[10px] text-[#8892a6] space-y-1">
           <p>Sistem ODE (tanpa difusi):</p>
-          <p class="ml-3">dB/dt = −mB + WB²</p>
-          <p class="ml-3">dW/dt = a − W − WB²</p>
+          <p class="ml-3">dB/dt = −mB + RB²</p>
+          <p class="ml-3">dR/dt = a − R − RB²</p>
           <p class="mt-1.5 text-[9px]">RK4: y_{n+1} = y_n + (h/6)(k₁ + 2k₂ + 2k₃ + k₄), orde akurasi O(h⁴)</p>
         </div>
       </div>
@@ -261,7 +261,7 @@ onMounted(() => runSimulation())
           </div>
           <div>
             <div class="flex justify-between text-xs mb-1.5">
-              <label class="text-[#c0c8d8] font-body">W₀ (Air awal)</label>
+              <label class="text-[#c0c8d8] font-body">R₀ (Air awal)</label>
               <span class="font-data text-sky-400">{{ W0.toFixed(2) }}</span>
             </div>
             <input type="range" v-model.number="W0" min="0.01" max="5.0" step="0.01" class="slider slider-sky">
@@ -306,7 +306,7 @@ onMounted(() => runSimulation())
               {{ convergenceInfo.eq.name }}
             </span>
             (jarak: {{ convergenceInfo.dist.toFixed(6) }}).
-            Nilai akhir: B(T)={{ convergenceInfo.finalB.toFixed(4) }}, W(T)={{ convergenceInfo.finalW.toFixed(4) }}
+            Nilai akhir: B(T)={{ convergenceInfo.finalB.toFixed(4) }}, R(T)={{ convergenceInfo.finalW.toFixed(4) }}
           </p>
         </div>
 
@@ -353,9 +353,9 @@ onMounted(() => runSimulation())
           </div>
         </div>
 
-        <!-- Chart: t vs W(t) / R(t) -->
+        <!-- Chart: t vs R(t) -->
         <div class="card">
-          <h2 class="section-title mb-3">Grafik t vs R(t) <span class="text-sky-400/60">(Air / Water)</span></h2>
+          <h2 class="section-title mb-3">Grafik t vs R(t) <span class="text-sky-400/60">(Air)</span></h2>
           <p class="text-[10px] text-[#555d70] font-body mb-2">
             Evolusi air tanah R(t). Perhatikan hubungan terbalik dengan B(t) — saat vegetasi tumbuh, air diserap.
           </p>
@@ -406,7 +406,7 @@ onMounted(() => runSimulation())
                   <th class="py-2 px-3 text-right text-[#555d70]">Be (teori)</th>
                   <th class="py-2 px-3 text-right text-[#555d70]">Re (teori)</th>
                   <th class="py-2 px-3 text-right text-[#555d70]">B(T) RK4</th>
-                  <th class="py-2 px-3 text-right text-[#555d70]">W(T) RK4</th>
+                  <th class="py-2 px-3 text-right text-[#555d70]">R(T) RK4</th>
                   <th class="py-2 px-3 text-right text-[#555d70]">Jarak</th>
                   <th class="py-2 px-3 text-center text-[#555d70]">Konvergen?</th>
                 </tr>
