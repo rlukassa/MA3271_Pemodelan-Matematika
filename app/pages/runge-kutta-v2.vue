@@ -416,7 +416,7 @@ const rMax = computed(() => {
       <LatexExpr :expr="'J_{21}=-2R_eB_e, \\quad J_{22}=-1-B_e^2'" :block="true" />
     </div>
     <p class="mt-2 text-[10px] opacity-70">Validasi spasial mode-k ditunjukkan di modul Turing Linear V2.</p>
-    </div>
+  </div>
   </div>
 
       <div class="card">
